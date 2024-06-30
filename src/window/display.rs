@@ -1,5 +1,7 @@
 #![allow(unused)]
 
+use std::vec;
+
 use super::widgets::*;
 use macroquad::prelude::*;
 
@@ -27,6 +29,7 @@ pub struct WindowProperties {
 #[derive(Clone)]
 pub struct Window {
     pub name: String,
+    pub id: String,
     pub uuid: String,
     pub rect: Rect,
     tb_rect: Rect,
@@ -51,18 +54,23 @@ pub struct Window {
     close_rect: Rect,
     close_pressed: bool,
     close_hovered: bool,
+    pub frame_pushed: Vec<Widget>,
 }
+
+// MAIN IMPL
 impl Window {
     pub fn new(
         name: &str,
         rect: Rect,
         font: &Font,
         widgets: Option<Vec<Widget>>,
-        uuid: Option<&str>,
+        id: String,
+        uuid: Option<String>,
     ) -> Self {
         Self {
             name: name.to_string(),
-            uuid: uuid.unwrap_or("").to_owned(),
+            id: id,
+            uuid: uuid.unwrap_or("".to_owned()),
             rect,
             tb_rect: Rect::new(rect.x, rect.y, rect.w, 20.0),
             style: WindowStyle {
@@ -107,11 +115,13 @@ impl Window {
             },
             close_pressed: false,
             close_hovered: false,
+            frame_pushed: vec![],
         }
     }
 
     pub fn queue_free(&mut self) {
         self.queue_free = true;
+        drop(self)
     }
 
     pub fn update(&mut self, selected: Option<usize>, mouse_position: &Vec2) {
@@ -120,7 +130,7 @@ impl Window {
         self.update_mouse_released();
 
         self.update_window_scaling(mouse_position);
-        
+
         if !self.properties.no_title_bar {
             self.update_dragging(mouse_position);
             self.update_minimise(mouse_position);
@@ -160,25 +170,22 @@ impl Window {
         self.render_outline();
     }
 
-    pub fn get_widget(&mut self, uuid: &str) -> Option<&mut Widget> {
+    pub fn get_widget_from_uuid(&mut self, uuid: &str) -> Option<&mut Widget> {
         for i in self.widgets.iter_mut() {
-            if let Ok(obj) = i.as_text() {
-                if obj.uuid == uuid {
-                    return Some(i);
-                }
-            } else if let Ok(obj) = i.as_button() {
-                if obj.uuid == uuid {
-                    return Some(i);
-                }
-            } else if let Ok(obj) = i.as_widget_row() {
-                if obj.uuid == uuid {
-                    return Some(i);
-                }
+            if i.as_text().uuid == uuid {
+                return Some(i);
             }
-            if let Ok(obj) = i.as_widget_row() {
-                if let Some(obj) = obj.get_widget(uuid) {
-                    return Some(obj);
-                }
+            if i.as_button().uuid == uuid {
+                return Some(i);
+            }
+            if i.as_slider().uuid == uuid {
+                return Some(i);
+            }
+            if i.as_image().uuid == uuid {
+                return Some(i);
+            }
+            if let Some(obj) = i.as_widget_row().get_widget(uuid) {
+                return Some(obj);
             }
         }
         return None;
@@ -265,7 +272,10 @@ impl Window {
     }
 
     fn update_top_bar(&mut self, selected: Option<usize>, mouse_position: &Vec2) {
-        match ((self.tb_hovered && !self.minimize_pressed && !self.close_pressed), self.tb_pressed) {
+        match (
+            (self.tb_hovered && !self.minimize_pressed && !self.close_pressed),
+            self.tb_pressed,
+        ) {
             (true, true) => {
                 if selected == None {
                     self.selected = true;
@@ -440,6 +450,10 @@ impl Window {
 // RENDER
 impl Window {
     fn render_top_bar(&mut self) -> f32 {
+        self.tb_rect.x = self.rect.x;
+        self.tb_rect.y = self.rect.y;
+        self.tb_rect.w = self.rect.w;
+
         let title_padding = match self.properties.no_title_bar {
             true => 0.0,
             _ => 20.0,
@@ -461,7 +475,7 @@ impl Window {
         title_padding
     }
 
-    fn render_topbar_and_title(&self) {
+    fn render_topbar_and_title(&mut self) {
         // TOP BAR
         draw_rectangle(
             self.tb_rect.x,
@@ -491,7 +505,12 @@ impl Window {
         );
     }
 
-    fn render_minimise_button(&self) {
+    fn render_minimise_button(&mut self) {
+        self.minimize_rect.x = self.tb_rect.x + 6.;
+        self.minimize_rect.y = self.tb_rect.y + 6.;
+        self.minimize_rect.w = 14.0;
+        self.minimize_rect.h = self.tb_rect.h - 10.;
+
         // MINIMIZE TRIANGLE
         match (self.minimized.is_none(), self.properties.minimizable) {
             (true, true) => {
@@ -557,7 +576,7 @@ impl Window {
             match self.close_hovered {
                 true => Color::new(0., 0., 0., 0.33),
                 _ => Color::new(0., 0., 0., 0.2),
-            }
+            },
         );
 
         // CLOSE 'X'
@@ -591,9 +610,9 @@ impl Window {
                 bottom_right - Vec2::X * self.scale_triangle_size,
                 bottom_right - Vec2::Y * self.scale_triangle_size,
                 match self.scale_hover {
-                    true => Color::from_vec(
-                        self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.4),
-                    ),
+                    true => {
+                        Color::from_vec(self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.4))
+                    }
                     _ => self.style.scale_color,
                 },
             );
@@ -656,5 +675,89 @@ impl Window {
                 _ => self.style.border_color,
             },
         );
+    }
+}
+
+// WINDOW METHODS
+impl Window {
+    pub fn name(&mut self, name: &str) -> &mut Self {
+        self.name = name.to_owned();
+        self
+    }
+
+    pub fn position(&mut self, position: Vec2) -> &mut Self {
+        self.rect.x = position.x;
+        self.rect.y = position.y;
+        self
+    }
+
+    pub fn size(&mut self, size: Vec2) -> &mut Self {
+        self.rect.w = size.x;
+        self.rect.h = size.y;
+        self
+    }
+
+    pub fn style(&mut self, style: WindowStyle) -> &mut Self {
+        self.style = style;
+        self
+    }
+
+    pub fn properties(&mut self, properties: WindowProperties) -> &mut Self {
+        self.properties = properties;
+        self
+    }
+
+    pub fn push_widgets(&mut self, widgets: Vec<Widget>) -> &mut Self {
+        if widgets.len() < 1 {
+            return self;
+        }
+
+        let mut idx = self.frame_pushed.len();
+        for i in widgets.iter() {
+            let i_clone = i.clone();
+
+            if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
+                self.widgets.push(i_clone)
+            } else if i.equate(&mut self.widgets[idx]) {
+                self.widgets[idx] = i_clone;
+            }
+            idx += 1;
+        }
+
+        for i in widgets.iter() {
+            self.frame_pushed.push(i.clone());
+        }
+
+        self
+    }
+
+    pub fn push(&mut self, widget: Widget) -> &mut Self {
+        let mut idx = self.frame_pushed.len();
+
+        for i in self.widgets.clone().iter() {
+            if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
+                self.widgets.push(widget.clone())
+            } else if i.equate(&mut self.widgets[idx]) {
+                self.widgets[idx] = widget.clone();
+            }
+        }
+        self.frame_pushed.push(widget);
+
+        self
+    }
+
+    pub fn get_widget(&mut self, idx: usize) -> &mut Widget {
+        &mut self.widgets[idx]
+    }
+
+    pub fn button_style(&mut self, style: ButtonStyle) -> &mut Self {
+        for i in self.widgets.iter_mut() {
+            if let Widget::Button(i) = i {
+                i.style = style.clone();
+            } else if let Widget::WidgetRow(i) = i {
+                i.button_style(&style);
+            }
+        }
+        self
     }
 }

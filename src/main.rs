@@ -1,6 +1,5 @@
 use macroquad::prelude::*;
-mod window;
-use window::*;
+mod window; use window::*;
 
 #[macroquad::main("Window")]
 async fn main() {
@@ -8,41 +7,44 @@ async fn main() {
         .await
         .unwrap();
 
-    let ferris_image = Texture2D::from_image(&load_image("src\\assets\\ferris.png").await.unwrap());
-    let ferris_size = ferris_image.size() / 2.0;
-
-    let mut win = begin(Some("amogus"), &font.clone());
-    win.push_widgets(vec![
-        Widget::Slider(Slider::new(
-            "",
-            font,
-            0.0,
-            200.0,
-            Rect::new(0., 0., 200., 20.),
-            None,
-        )),
-        Widget::DisplayImage(DisplayImage::new(
-            Some(ferris_image),
-            ferris_size,
-            None,
-            None,
-        )),
-    ]);
-
-    let mut windows = vec![win];
+    let mut show_button = true;
+    let mut windows = WindowManager::new();
 
     loop {
         clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
-        update_windows(&mut windows);
 
-        let mut windows_clone = windows[0].clone();
-        let value = windows_clone.widgets[0].as_slider().unwrap().value;
+        if let Some(win) = windows.begin("my_window", &font) {
+            win
+                .name("sigma").push_widgets(vec![
+                    Widget::Button(
+                        Button::new("bye", &font, None, None)
+                    )
+                ]);
+            
+            if show_button {
+                win.push(Widget::Button(
+                    Button::new("hello", &font, None, None)
+                ));
+            }
 
-        windows[0].widgets[1]
-            .as_image()
-            .unwrap()
-            .set_size(vec2(value * 1.7, value));
+            if win.get_widget(0).as_button().is_just_pressed {
+                show_button = false;
+            }
+        }
 
+        windows.update_windows();
         next_frame().await;
     }
 }
+
+// if let Some(win) =  {
+//     win
+//         .name("sigma")
+//         .push_widgets(vec![
+//             Widget::Text(
+//                 Text::new("hello", &font, None, None)
+//             )
+//         ]);
+    
+//     win.widgets[0].as_text().unwrap().set_text(mouse_position().0.to_string());
+// }

@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct DisplayImage {
     pub rect: Rect,
     pub texture: Texture2D,

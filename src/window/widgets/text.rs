@@ -4,8 +4,8 @@ use macroquad::prelude::*;
 pub struct Text {
     pub text: String,
     pub rect: Rect,
-    color: Color,
-    font: Font,
+    pub color: Color,
+    pub font: Font,
     pub queue_free: bool,
     pub uuid: &'static str
 }
