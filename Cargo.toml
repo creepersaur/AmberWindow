@@ -1,9 +1,11 @@
 [package]
 name = "amberwindow"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "An easy to use ImmediateMode gui library for Rust."
 license = "MIT" 
+homepage = "https://github.com/creepersaur/AmberWindow"
+repository = "https://github.com/creepersaur/AmberWindow"
 
 [dependencies]
 macroquad = "0.4.8"

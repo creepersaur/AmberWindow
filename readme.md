@@ -31,8 +31,8 @@ async fn main() {
         windows.begin("window")
             .unwrap()
             .name("Hello Window!");
-        windows.update_windows();
 
+        windows.update_windows();
         next_frame().await;
     }
 }
