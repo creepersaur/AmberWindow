@@ -5,7 +5,7 @@ use std::vec;
 use super::widgets::*;
 use macroquad::prelude::*;
 
-/// # Custom window styling.
+/// Style > Custom window styling.
 #[derive(Clone)]
 pub struct WindowStyle {
     pub font: Font,
@@ -18,7 +18,7 @@ pub struct WindowStyle {
     pub minimize_color: Color,
 }
 
-/// # Properties for windows.
+/// # Properties > Properties for windows.
 #[derive(Clone)]
 pub struct WindowProperties {
     pub wall_collision: bool,

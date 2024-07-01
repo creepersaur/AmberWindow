@@ -2,6 +2,7 @@ use camera::mouse;
 use macroquad::prelude::*;
 use std::sync::{Arc, Mutex};
 
+/// Style > Custom Slider Styling.
 #[derive(Clone)]
 pub struct SliderStyle {
     pub font: Font,

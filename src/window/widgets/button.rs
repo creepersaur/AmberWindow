@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use std::sync::{Arc, Mutex};
 
-// Custom button styling.
+/// Style > Custom Button styling.
 #[derive(Clone)]
 pub struct ButtonStyle {
     pub font: Font,
@@ -12,6 +12,49 @@ pub struct ButtonStyle {
 }
 
 /// Widget > Button (Simple text button).
+/// 
+/// # Examples
+/// 
+/// ## Render a button
+/// ```
+/// loop {
+///     if let Some(win) = windows.begin("my_window", &font) {
+///         win.push(
+///             WindowWidget::Button("press me", &font, None, None)
+///         );
+///     }
+/// }
+/// ```
+/// 
+/// ## Detecting button presses
+///  ```
+/// loop {
+///     if let Some(win) = windows.begin("my_window", &font) {
+///         win.push(
+///             WindowWidget::Button("press me", &font, None, None)
+///         );
+/// 
+///         if win.get_widget(0).as_button().is_just_pressed {
+///             println!("BUTTON WAS JUST PRESSED!");
+///         }
+///     }
+/// }
+/// ```
+/// 
+/// ## Check if button is held
+///  ```
+/// loop {
+///     if let Some(win) = windows.begin("my_window", &font) {
+///         win.push(
+///             WindowWidget::Button("press me", &font, None, None)
+///         );
+/// 
+///         if win.get_widget(0).as_button().pressed {
+///             println!("BUTTON IS BEING HELD DOWN!");
+///         }
+///     }
+/// }
+/// ```
 #[derive(Clone)]
 pub struct Button {
     pub text: &'static str,
@@ -58,7 +101,7 @@ impl Button {
     }
     
     pub fn update(&mut self, selected: bool) {
-        let dim = measure_text(&self.text, None, 16, 1f32);
+        let dim = measure_text(self.text, None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 2.0;
         self.rect.h = dim.height + 4.0;
 

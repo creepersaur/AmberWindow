@@ -59,7 +59,7 @@ async fn main() {
 
     loop {
         clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
-
+        
         if let Some(window) = windows.begin("window", &font) {
             window.push(
                 WindowWidget::Text("Hello world!", &font, None, None)
