@@ -34,7 +34,8 @@ async fn main() {
     loop {
         clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
 
-        windows.begin("window", &font);
+        windows.begin("window", &font).unwrap()
+            .name("Hello Window!");
         windows.update_windows();
 
         next_frame().await;
@@ -61,7 +62,7 @@ async fn main() {
 
         if let Some(window) = windows.begin("window", &font) {
             window.push(
-                WindowWidget::Text("hello", &font, None, None)
+                WindowWidget::Text("Hello world!", &font, None, None)
             );
         }
 

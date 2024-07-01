@@ -727,12 +727,10 @@ impl Window {
     pub fn push(&mut self, widget: Widget) -> &mut Self {
         let mut idx = self.frame_pushed.len();
 
-        for i in self.widgets.clone().iter() {
-            if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
-                self.widgets.push(widget.clone())
-            } else if i.equate(&mut self.widgets[idx]) {
-                self.widgets[idx] = widget.clone();
-            }
+        if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
+            self.widgets.push(widget.clone())
+        } else if widget.equate(&mut self.widgets[idx]) {
+            self.widgets[idx] = widget.clone();
         }
         self.frame_pushed.push(widget);
 
