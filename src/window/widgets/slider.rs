@@ -11,6 +11,7 @@ pub struct SliderStyle {
     pub value_color: Color
 }
 
+/// Widget > Slider (Simple floating point slider).
 #[derive(Clone)]
 pub struct Slider {
     pub rect: Rect,

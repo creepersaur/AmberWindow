@@ -2,7 +2,11 @@ use macroquad::prelude::*;
 
 use super::super::*;
 
-
+/// Widget > WidgetRow (Horizontally places widgets).
+/// # WidgetRow
+/// 
+/// Allows for placing widgets into horizontally, as opposed to only in rows.
+/// **You cannot have WidgetRows inside of WidgetRows**.
 #[derive(Clone)]
 pub struct WidgetRow {
     pub widgets: Vec<Widget>,

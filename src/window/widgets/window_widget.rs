@@ -1,5 +1,6 @@
 use super::super::*;
 
+/// Widget > WindowWidget (Manages widget creation).
 pub struct WindowWidget {}
 impl WindowWidget {
     pub fn Text(text: &'static str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Widget {

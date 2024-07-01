@@ -2,6 +2,7 @@
 use super::super::*;
 use std::fmt::Error;
 
+/// Widget > Widget (Base enum for all widgets).
 #[derive(Clone)]
 pub enum Widget {
     Text(Text),

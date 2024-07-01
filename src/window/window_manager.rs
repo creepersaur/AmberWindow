@@ -1,10 +1,35 @@
 use super::*;
 
+/// # Manages window update and creation.
+/// 
+/// Handles all windows and creates new windows.
+/// 
+/// ## Examples
+/// 
+/// ### Creating and updating windows
+/// 
+/// ```
+/// let font = load_font_ttf("path").await.unwrap(); // Load font
+/// let windows = WindowManager::new(); // Create new window manager
+/// 
+/// loop {
+///     windows.begin("window", &font); // returns `Option<Window>`
+///     windows.update_windows();       // Update + Render all windows.
+/// }
+/// ```
+/// 
+/// ### Getting window index from id
+/// 
+/// ```
+/// // Get window with id = "window"
+/// let idx = windows.get_window_index("window");
+/// 
+/// windows[idx].queue_free(); // Kill the window
+/// ```
 pub struct WindowManager {
     pub windows: Vec<Window>,
     freed: Vec<String>,
 }
-
 impl WindowManager {
     pub fn new() -> Self {
         Self {

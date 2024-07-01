@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+/// Widget > DisplayImage (Displays an image on the window).
 #[derive(Clone, PartialEq)]
 pub struct DisplayImage {
     pub rect: Rect,

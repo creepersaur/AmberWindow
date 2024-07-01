@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 use std::sync::{Arc, Mutex};
 
+// Custom button styling.
 #[derive(Clone)]
 pub struct ButtonStyle {
     pub font: Font,
@@ -10,6 +11,7 @@ pub struct ButtonStyle {
     pub pressed_bg_color: Color,
 }
 
+/// Widget > Button (Simple text button).
 #[derive(Clone)]
 pub struct Button {
     pub text: &'static str,

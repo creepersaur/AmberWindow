@@ -1,8 +1,7 @@
 [package]
-name = "ui_test"
+name = "amberwindow"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 macroquad = "*"
-once_cell = "1.10.0"
