@@ -124,7 +124,7 @@ impl Button {
             self.pressed = false;
         }
 
-        if self.button_rect.contains(Vec2::from_tuple(mouse_position())) {
+        if self.button_rect.contains(vec2(mouse_position().0, mouse_position().1)) {
             self.hovering = true;
             if is_mouse_button_pressed(MouseButton::Left) && selected {
                 self.pressed = true;

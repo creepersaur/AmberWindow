@@ -76,7 +76,7 @@ impl WindowManager {
     }
 
     pub fn update_windows(&mut self) {
-        let mouse_position = Vec2::from_tuple(mouse_position());
+        let mouse_position = vec2(mouse_position().0, mouse_position().1);
 
         let mut idx: usize = 0;
         let mut selected: Option<usize> = None;
