@@ -16,16 +16,9 @@ async fn main() {
         clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
 
         if let Some(win) = windows.begin("my_window", &font.clone()) {
-            let win_size = vec2(win.rect.w - 30., win.rect.h -59.);
+            let win_size = vec2(win.rect.w - 30., win.rect.h -45.);
 
-            win.name("sigma").push_widgets(vec![
-                Widget::Slider(Slider::new(
-                    font.clone(),
-                    0.,
-                    100.,
-                    Rect::new(0., 0., 200., 20.),
-                    None,
-                )),
+            win.name("").push_widgets(vec![
                 Widget::DisplayImage(DisplayImage::new(
                     Some(ferris.clone()),
                     win_size,

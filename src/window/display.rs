@@ -307,7 +307,7 @@ impl Window {
         };
 
         let mut max_width = 0f32;
-        let mut last_y = 17.0 + title_padding;
+        let mut last_y = 7.0 + title_padding;
         let padding = 5.0;
         let padding_left = 7.0;
 
@@ -372,8 +372,8 @@ impl Window {
             }
         }
 
-        if last_y - 10.0 > self.rect.h {
-            self.rect.h = last_y - 10.0;
+        if last_y > self.rect.h {
+            self.rect.h = last_y;
         }
         if max_width + 10.0 > self.rect.w {
             self.rect.w = max_width + 10.0
@@ -436,8 +436,10 @@ impl Window {
     }
 
     fn update_min_size_limit(&mut self) {
-        if self.rect.w < 100.0 {
-            self.rect.w = 100.0;
+        let dim = measure_text(&self.name, None, 16, 1f32);
+        let title_width = dim.width * 1.2 + 4.0;
+        if self.rect.w < title_width + 40.0 {
+            self.rect.w = title_width + 40.0;
         }
         if self.rect.h < 50.0 {
             self.rect.h = 50.0;

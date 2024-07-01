@@ -8,14 +8,12 @@ pub struct WidgetRow {
     pub widgets: Vec<Widget>,
     pub rect: Rect,
     pub uuid: &'static str,
-    pub queue_free: bool,
 } impl WidgetRow {
     pub fn new(widgets: Vec<Widget>, uuid: Option<&'static str>) -> Self{
         Self {
             widgets,
             rect: Rect::new(0., 0., 0., 0.),
             uuid: uuid.unwrap_or(""),
-            queue_free: false
         }
     }
 

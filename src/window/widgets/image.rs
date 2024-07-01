@@ -34,7 +34,7 @@ impl DisplayImage {
             self.rect.y,
             self.color,
             DrawTextureParams {
-                dest_size: Some(vec2(self.rect.w, self.rect.h)),
+                dest_size: Some(vec2(self.rect.w, self.rect.h + 5.0)),
                 ..Default::default()
             }
         );

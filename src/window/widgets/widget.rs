@@ -77,35 +77,33 @@ impl Equate for Button {
 }
 impl Equate for Slider {
     fn equate(&self, other: &mut Self) -> bool {
-        self.rect == other.rect
-            && self.value == other.value
+        self.rect.w == other.rect.w
+            && self.rect.h == other.rect.h
+            //&& self.value == other.value
             && self.min == other.min
             && self.max == other.max
     }
 }
 impl Equate for DisplayImage {
     fn equate(&self, other: &mut Self) -> bool {
-        self.texture == other.texture && {
-            self.rect.w == other.rect.w &&
-            self.rect.h == other.rect.h
-        } && self.color == other.color
+        self.texture == other.texture
+            && { self.rect.w == other.rect.w && self.rect.h == other.rect.h }
+            && self.color == other.color
     }
 }
 impl Equate for WidgetRow {
     fn equate(&self, other: &mut Self) -> bool {
-        ({
-            let mut idx = 0;
-            for i in self.widgets.iter() {
-                let equal = match i {
-                    Widget::Text(i) => i.equate(other.widgets[idx].as_text()),
-                    Widget::Button(i) => i.equate(other.widgets[idx].as_button()),
-                    Widget::Slider(i) => i.equate(other.widgets[idx].as_slider()),
-                    Widget::DisplayImage(i) => i.equate(other.widgets[idx].as_image()),
-                    _ => true,
-                };
-                idx += 1;
-            }
-            return true;
-        } && self.queue_free == other.queue_free)
+        let mut idx = 0;
+        for i in self.widgets.iter() {
+            let equal = match i {
+                Widget::Text(i) => i.equate(other.widgets[idx].as_text()),
+                Widget::Button(i) => i.equate(other.widgets[idx].as_button()),
+                Widget::Slider(i) => i.equate(other.widgets[idx].as_slider()),
+                Widget::DisplayImage(i) => i.equate(other.widgets[idx].as_image()),
+                _ => true,
+            };
+            idx += 1;
+        }
+        return true;
     }
 }
