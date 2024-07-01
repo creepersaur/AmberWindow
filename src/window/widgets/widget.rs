@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use super::super::*;
 use std::fmt::Error;
 
@@ -72,7 +73,11 @@ impl Equate for Text {
 }
 impl Equate for Button {
     fn equate(&self, other: &mut Self) -> bool {
-        self.text == other.text && self.rect == other.rect && self.button_rect == other.button_rect
+        self.text == other.text
+            && self.rect.w == other.rect.w
+            && self.rect.h == other.rect.h
+            && self.button_rect.w == other.button_rect.w
+            && self.button_rect.h == other.button_rect.h
     }
 }
 impl Equate for Slider {

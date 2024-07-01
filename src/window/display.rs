@@ -99,7 +99,7 @@ impl Window {
             scaling: None,
             widgets: widgets.unwrap_or(Vec::new()),
             scale_collider: Rect::new(0., 0., 0., 0.),
-            scale_triangle_size: 20f32,
+            scale_triangle_size: 15f32,
             scale_hover: false,
             minimize_rect: Rect::new(0., 0., 0., 0.),
             close_rect: Rect::new(0., 0., 0., 0.),
@@ -195,7 +195,7 @@ impl Window {
 // UPDATE
 impl Window {
     fn update_mouse_released(&mut self) {
-        if is_mouse_button_released(MouseButton::Left) {
+        if !is_mouse_button_down(MouseButton::Left) {
             self.tb_pressed = false;
             self.dragging = false;
             self.scaling = None;
@@ -307,7 +307,7 @@ impl Window {
         };
 
         let mut max_width = 0f32;
-        let mut last_y = 7.0 + title_padding;
+        let mut last_y = 17.0 + title_padding;
         let padding = 5.0;
         let padding_left = 7.0;
 
@@ -317,9 +317,7 @@ impl Window {
             if let Widget::Text(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                if !self.scale_hover || self.scaling.is_none() {
-                    i.update(self.selected);
-                }
+                i.update(self.selected);
 
                 last_y += i.rect.h + padding;
                 if i.rect.w > max_width {
@@ -328,20 +326,16 @@ impl Window {
             } else if let Widget::Button(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                if !self.scale_hover || self.scaling.is_none() {
-                    i.update(self.selected);
-                }
+                i.update(self.selected);
 
-                last_y += i.rect.h + padding + 1.0;
+                last_y += i.rect.h + padding + 4.0;
                 if i.button_rect.w + 4.0 > max_width {
                     max_width = i.button_rect.w + 4.0;
                 }
             } else if let Widget::Slider(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y - 10.0;
-                if !self.scale_hover || self.scaling.is_none() {
-                    i.update(self.selected, mouse_position);
-                }
+                i.update(self.selected, mouse_position);
 
                 last_y += i.rect.h + padding + 1.0;
                 if i.rect.w + 4.0 > max_width {
@@ -350,9 +344,7 @@ impl Window {
             } else if let Widget::DisplayImage(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y - 10.0;
-                if !self.scale_hover || self.scaling.is_none() {
-                    i.update(self.selected);
-                }
+                i.update(self.selected);
 
                 last_y += i.rect.h + padding + 1.0;
                 if i.rect.w + 4.0 > max_width {
@@ -361,9 +353,7 @@ impl Window {
             } else if let Widget::WidgetRow(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                if !self.scale_hover || self.scaling.is_none() {
-                    i.update(self.selected);
-                }
+                i.update(self.selected);
 
                 last_y += i.rect.h + padding;
                 if i.rect.w > max_width {
@@ -372,8 +362,8 @@ impl Window {
             }
         }
 
-        if last_y > self.rect.h {
-            self.rect.h = last_y;
+        if last_y - 10.0 > self.rect.h {
+            self.rect.h = last_y - 10.0;
         }
         if max_width + 10.0 > self.rect.w {
             self.rect.w = max_width + 10.0
@@ -607,8 +597,8 @@ impl Window {
         if self.properties.scalable {
             draw_triangle(
                 bottom_right,
-                bottom_right - Vec2::X * self.scale_triangle_size,
-                bottom_right - Vec2::Y * self.scale_triangle_size,
+                bottom_right - Vec2::X * (self.scale_triangle_size + 2.),
+                bottom_right - Vec2::Y * (self.scale_triangle_size + 2.),
                 match self.scale_hover {
                     true => {
                         Color::from_vec(self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.4))
@@ -637,7 +627,7 @@ impl Window {
                 i.rect.y = self.rect.y + last_y;
                 i.render();
 
-                last_y += i.rect.h + padding;
+                last_y += i.rect.h + padding + 4.0;
             } else if let Widget::Slider(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y - 10.0;

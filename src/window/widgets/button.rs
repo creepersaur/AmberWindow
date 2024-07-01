@@ -25,7 +25,7 @@ pub struct Button {
 
 impl Button {
     pub fn new(text: &'static str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
-        Self {
+        let mut x = Self {
             text,
             uuid: uuid.unwrap_or(""),
             rect: {
@@ -44,20 +44,28 @@ impl Button {
             pressed: false,
             is_just_pressed: false,
             queue_free: false
-        }
+        };
+        
+        let dim = measure_text(x.text, None, 16, 1f32);
+        x.rect.w = dim.width * 1.2 + 2.0;
+        x.rect.h = dim.height + 4.0;
+        x.button_rect.w = x.rect.w + 14.;
+        x.button_rect.h = x.rect.h + 7.;
+        
+        x
     }
     
     pub fn update(&mut self, selected: bool) {
         let dim = measure_text(&self.text, None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 2.0;
-        self.rect.h = dim.height + 3.0;
+        self.rect.h = dim.height + 4.0;
 
         self.is_just_pressed = false;
 
         self.button_rect.x = self.rect.x - 2.;
         self.button_rect.y = self.rect.y - 12.;
         self.button_rect.w = self.rect.w + 14.;
-        self.button_rect.h = self.rect.h + 4.;
+        self.button_rect.h = self.rect.h + 7.;
 
         if is_mouse_button_released(MouseButton::Left)
             && self.hovering

@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::*;
+use super::super::*;
 
 
 #[derive(Clone)]

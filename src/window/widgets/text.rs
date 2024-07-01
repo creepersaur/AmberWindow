@@ -32,7 +32,11 @@ impl Text {
         self.rect.h = dim.height + 3.0;
     }
 
-    pub fn render(&self) {
+    pub fn render(&mut self) {
+        let dim = measure_text(&self.text, None, 16, 1f32);
+        self.rect.w = dim.width * 1.2 + 2.0;
+        self.rect.h = dim.height + 3.0;
+        
         draw_text_ex(
             self.text.as_str(),
             self.rect.x,
