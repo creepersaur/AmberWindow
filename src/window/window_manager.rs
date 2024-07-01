@@ -1,3 +1,4 @@
+use macroquad::prelude::*;
 use super::*;
 
 /// # Manages window update and creation.
@@ -29,16 +30,32 @@ use super::*;
 pub struct WindowManager {
     pub windows: Vec<Window>,
     freed: Vec<String>,
+    font: Font,
 }
 impl WindowManager {
-    pub fn new() -> Self {
+    /// Create a new WindowManager
+    pub async fn new(font_path: &str) -> Self {
         Self {
             windows: vec![],
             freed: vec![],
+            font: load_ttf_font(font_path).await.unwrap()
         }
     }
 
-    pub fn begin(&mut self, id: &str, font: &Font) -> Option<&mut Window> {
+    /// Create a new immediate window with a ***unique*** `id`.
+    /// 
+    /// Returns an Option<&mut Window> which can have methods called to change itself.
+    /// # Example
+    /// 
+    /// ```
+    /// if let Some(win) = windows.begin("my_window") {
+    ///     win.name("window_name")
+    ///         .push(
+    ///             WindowWidget::Text("hello", &font, None, None)
+    ///         );
+    /// }
+    /// ```
+    pub fn begin(&mut self, id: &str) -> Option<&mut Window> {
         if let Some(idx) = self.get_window_index(id) {
             if !self.check_freed(id) {
                 self.windows[idx].frame_pushed.clear();
@@ -50,7 +67,7 @@ impl WindowManager {
             let mut win = Window::new(
                 "Window",
                 Rect::new(0., 0., 200., 200.),
-                &font,
+                &self.font,
                 None,
                 id.to_string(),
                 Some(uuid.to_string()),
@@ -62,6 +79,7 @@ impl WindowManager {
         None
     }
 
+    /// Check if the a window with `id` has been freed.
     pub fn check_freed(&mut self, id: &str) -> bool {
         for i in self.windows.iter() {
             if i.id != id.to_owned() { continue }
@@ -75,6 +93,9 @@ impl WindowManager {
         false
     }
 
+    /// Updates and renders all windows.
+    /// ## MUST BE CALLED AT THE END
+    /// *(After calling begin and changing them)*
     pub fn update_windows(&mut self) {
         let mouse_position = vec2(mouse_position().0, mouse_position().1);
 
@@ -118,6 +139,7 @@ impl WindowManager {
         }
     }
 
+    /// Get the index of a window using its `id`.
     pub fn get_window_index(&mut self, id: &str) -> Option<usize> {
         let mut idx = 0;
         for i in self.windows.iter() {

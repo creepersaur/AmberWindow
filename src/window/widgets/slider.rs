@@ -28,12 +28,13 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new(font: Font, min: f32, max: f32, rect: Rect, uuid: Option<&'static str>) -> Self {
+    /// Create a new slider.
+    pub fn new(font: &Font, min: f32, max: f32, rect: Rect, uuid: Option<&'static str>) -> Self {
         Self {
             uuid: uuid.unwrap_or(""),
             rect,
             style: SliderStyle {
-                font: font,
+                font: font.clone(),
                 color: WHITE,
                 hover_bg_color: Color::new(0.3, 0.3, 0.3, 0.5),
                 bg_color: Color::new(0.3, 0.3, 0.3, 0.3),

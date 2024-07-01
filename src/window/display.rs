@@ -172,27 +172,6 @@ impl Window {
 
         self.render_outline();
     }
-
-    pub fn get_widget_from_uuid(&mut self, uuid: &str) -> Option<&mut Widget> {
-        for i in self.widgets.iter_mut() {
-            if i.as_text().uuid == uuid {
-                return Some(i);
-            }
-            if i.as_button().uuid == uuid {
-                return Some(i);
-            }
-            if i.as_slider().uuid == uuid {
-                return Some(i);
-            }
-            if i.as_image().uuid == uuid {
-                return Some(i);
-            }
-            if let Some(obj) = i.as_widget_row().get_widget(uuid) {
-                return Some(obj);
-            }
-        }
-        return None;
-    }
 }
 
 // UPDATE
@@ -431,11 +410,20 @@ impl Window {
     fn update_min_size_limit(&mut self) {
         let dim = measure_text(&self.name, None, 16, 1f32);
         let title_width = dim.width * 1.2 + 4.0;
-        if self.rect.w < title_width + 40.0 {
-            self.rect.w = title_width + 40.0;
-        }
-        if self.rect.h < 50.0 {
-            self.rect.h = 50.0;
+        if !self.properties.no_title_bar {
+            if self.rect.w < title_width + 40.0 {
+                self.rect.w = title_width + 40.0;
+            }
+            if self.rect.h < 40.0 {
+                self.rect.h = 40.0;
+            }
+        } else {
+            if self.rect.w < title_width + 20.0 {
+                self.rect.w = title_width + 20.0;
+            }
+            if self.rect.h < 20.0 {
+                self.rect.h = 20.0;
+            }
         }
     }
 }
@@ -673,33 +661,39 @@ impl Window {
 
 // WINDOW METHODS
 impl Window {
+    /// Set the name/title of the window.
     pub fn name(&mut self, name: &str) -> &mut Self {
         self.name = name.to_owned();
         self
     }
 
+    /// Set the position of the window.
     pub fn position(&mut self, position: Vec2) -> &mut Self {
         self.rect.x = position.x;
         self.rect.y = position.y;
         self
     }
 
+    /// Set the size of the window.
     pub fn size(&mut self, size: Vec2) -> &mut Self {
         self.rect.w = size.x;
         self.rect.h = size.y;
         self
     }
 
+    /// Set the style of the window.
     pub fn style(&mut self, style: WindowStyle) -> &mut Self {
         self.style = style;
         self
     }
 
+    /// Set the properties of the window.
     pub fn properties(&mut self, properties: WindowProperties) -> &mut Self {
         self.properties = properties;
         self
     }
 
+    /// Push multiple widgets to the window.
     pub fn push_widgets(&mut self, widgets: Vec<Widget>) -> &mut Self {
         if widgets.len() < 1 {
             return self;
@@ -724,6 +718,7 @@ impl Window {
         self
     }
 
+    // Push a single widget to the window.
     pub fn push(&mut self, widget: Widget) -> &mut Self {
         let mut idx = self.frame_pushed.len();
 
@@ -736,11 +731,8 @@ impl Window {
 
         self
     }
-
-    pub fn get_widget(&mut self, idx: usize) -> &mut Widget {
-        &mut self.widgets[idx]
-    }
-
+    
+    /// Set the window's buttons' styles.
     pub fn button_style(&mut self, style: ButtonStyle) -> &mut Self {
         for i in self.widgets.iter_mut() {
             if let Widget::Button(i) = i {
@@ -750,5 +742,32 @@ impl Window {
             }
         }
         self
+    }
+
+    /// Get a widget by its index (usize/int).
+    pub fn get_widget(&mut self, idx: usize) -> &mut Widget {
+        &mut self.widgets[idx]
+    }
+
+    /// Get a widget using its uuid (str).
+    pub fn get_widget_from_uuid(&mut self, uuid: &str) -> Option<&mut Widget> {
+        for i in self.widgets.iter_mut() {
+            if i.as_text().uuid == uuid {
+                return Some(i);
+            }
+            if i.as_button().uuid == uuid {
+                return Some(i);
+            }
+            if i.as_slider().uuid == uuid {
+                return Some(i);
+            }
+            if i.as_image().uuid == uuid {
+                return Some(i);
+            }
+            if let Some(obj) = i.as_widget_row().get_widget(uuid) {
+                return Some(obj);
+            }
+        }
+        return None;
     }
 }

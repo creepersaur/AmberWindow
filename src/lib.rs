@@ -25,16 +25,12 @@ use amberwindow::WindowManager;
 
 #[macroquad::main("Window")]
 async fn main() {
-    let font: Font = load_ttf_font("pathToFont")
-        .await
-        .unwrap();
-
-    let mut windows = WindowManager::new();
+    let font_path = "src\\font.ttf";
+    let mut windows = WindowManager::new(font_path).await;
 
     loop {
-        clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
-
-        windows.begin("window", &font).unwrap()
+        windows.begin("window")
+            .unwrap()
             .name("Hello Window!");
         windows.update_windows();
 
@@ -51,18 +47,14 @@ use amberwindow::{WindowManager, WindowWidget};
 
 #[macroquad::main("Window")]
 async fn main() {
-    let font: Font = load_ttf_font("pathToFont")
-        .await
-        .unwrap();
-
-    let mut windows = WindowManager::new();
+    let font_path = "src\\font.ttf";
+    let widget = WindowWidget::new(font_path).await;
+    let mut windows = WindowManager::new(font_path).await;
 
     loop {
-        clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
-        
-        if let Some(window) = windows.begin("window", &font) {
+        if let Some(window) = windows.begin("window") {
             window.push(
-                WindowWidget::Text("Hello world!", &font, None, None)
+                widget.Text("Hello world!", None, None)
             );
         }
 
