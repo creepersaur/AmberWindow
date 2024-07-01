@@ -20,10 +20,6 @@ impl Text {
             queue_free: false
         }
     }
-
-    pub fn queue_free(&mut self) {
-        self.queue_free = true;
-    }
     
     pub fn set_text(&mut self, text: String) -> &mut Self {
         self.text = text;

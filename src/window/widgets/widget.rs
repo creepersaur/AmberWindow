@@ -25,40 +25,36 @@ impl Widget {
         match self {
             Widget::Text(ref mut obj) => Ok(obj),
             _ => Err(Error),
-        }.unwrap()
+        }
+        .unwrap()
     }
     pub fn as_button(&mut self) -> &mut Button {
         match self {
             Widget::Button(ref mut obj) => Ok(obj),
             _ => Err(Error),
-        }.unwrap()
+        }
+        .unwrap()
     }
     pub fn as_widget_row(&mut self) -> &mut WidgetRow {
         match self {
             Widget::WidgetRow(ref mut obj) => Ok(obj),
             _ => Err(Error),
-        }.unwrap()
+        }
+        .unwrap()
     }
     pub fn as_slider(&mut self) -> &mut Slider {
         match self {
             Widget::Slider(ref mut obj) => Ok(obj),
             _ => Err(Error),
-        }.unwrap()
+        }
+        .unwrap()
     }
     pub fn as_image(&mut self) -> &mut DisplayImage {
         match self {
             Widget::DisplayImage(ref mut obj) => Ok(obj),
             _ => Err(Error),
-        }.unwrap()
-    }
-    pub fn is_freeing(&self) -> bool {
-        match self {
-            Widget::Text(obj) => obj.queue_free,
-            Widget::Button(obj) => obj.queue_free,
-            Widget::WidgetRow(obj) => obj.queue_free,
-            Widget::Slider(obj) => obj.queue_free,
-            _ => false,
         }
+        .unwrap()
     }
 }
 
@@ -81,12 +77,18 @@ impl Equate for Button {
 }
 impl Equate for Slider {
     fn equate(&self, other: &mut Self) -> bool {
-        self.text == other.text && self.rect == other.rect
+        self.rect == other.rect
+            && self.value == other.value
+            && self.min == other.min
+            && self.max == other.max
     }
 }
 impl Equate for DisplayImage {
     fn equate(&self, other: &mut Self) -> bool {
-        self.texture == other.texture && self.rect == other.rect && self.color == other.color
+        self.texture == other.texture && {
+            self.rect.w == other.rect.w &&
+            self.rect.h == other.rect.h
+        } && self.color == other.color
     }
 }
 impl Equate for WidgetRow {

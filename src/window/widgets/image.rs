@@ -18,11 +18,7 @@ impl DisplayImage {
             queue_free: false
         }
     }
-
-    pub fn queue_free(&mut self) {
-        self.queue_free = true;
-    }
-
+    
     pub fn set_size(&mut self, size: Vec2) {
         self.rect.w = size.x;
         self.rect.h = size.y;

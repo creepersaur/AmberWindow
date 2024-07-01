@@ -19,10 +19,6 @@ pub struct WidgetRow {
         }
     }
 
-    pub fn queue_free(&mut self) {
-        self.queue_free = true;
-    }
-
     pub fn push(&mut self, value: Widget) {
         self.widgets.push(value);
     }
@@ -33,8 +29,6 @@ pub struct WidgetRow {
         let mut last_y = 0.0;
         let padding = 7.0;
         let padding_left = 0.0;
-
-        self.widgets.retain(|x: &Widget| !x.is_freeing());
 
         let mut button_amount = 0.0;
 

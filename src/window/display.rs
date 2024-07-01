@@ -311,8 +311,6 @@ impl Window {
         let padding = 5.0;
         let padding_left = 7.0;
 
-        self.widgets.retain(|x: &Widget| !x.is_freeing());
-
         self.button_style(self.button_style.clone());
 
         for i in self.widgets.iter_mut() {
@@ -718,7 +716,7 @@ impl Window {
 
             if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
                 self.widgets.push(i_clone)
-            } else if i.equate(&mut self.widgets[idx]) {
+            } else if !i.equate(&mut self.widgets[idx]) {
                 self.widgets[idx] = i_clone;
             }
             idx += 1;

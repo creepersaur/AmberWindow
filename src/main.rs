@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
-mod window; use window::*;
+mod window;
+use window::*;
 
 #[macroquad::main("Window")]
 async fn main() {
@@ -7,29 +8,31 @@ async fn main() {
         .await
         .unwrap();
 
-    let mut show_button = true;
+    let ferris = Texture2D::from_image(&load_image("src\\assets\\ferris.png").await.unwrap());
+
     let mut windows = WindowManager::new();
 
     loop {
         clear_background(Color::new(0.2, 0.2, 0.2, 1.0));
 
-        if let Some(win) = windows.begin("my_window", &font) {
-            win
-                .name("sigma").push_widgets(vec![
-                    Widget::Button(
-                        Button::new("bye", &font, None, None)
-                    )
-                ]);
-            
-            if show_button {
-                win.push(Widget::Button(
-                    Button::new("hello", &font, None, None)
-                ));
-            }
+        if let Some(win) = windows.begin("my_window", &font.clone()) {
+            let win_size = vec2(win.rect.w - 30., win.rect.h -59.);
 
-            if win.get_widget(0).as_button().is_just_pressed {
-                show_button = false;
-            }
+            win.name("sigma").push_widgets(vec![
+                Widget::Slider(Slider::new(
+                    font.clone(),
+                    0.,
+                    100.,
+                    Rect::new(0., 0., 200., 20.),
+                    None,
+                )),
+                Widget::DisplayImage(DisplayImage::new(
+                    Some(ferris.clone()),
+                    win_size,
+                    None,
+                    None,
+                )),
+            ]);
         }
 
         windows.update_windows();
@@ -45,6 +48,6 @@ async fn main() {
 //                 Text::new("hello", &font, None, None)
 //             )
 //         ]);
-    
+
 //     win.widgets[0].as_text().unwrap().set_text(mouse_position().0.to_string());
 // }

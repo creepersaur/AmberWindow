@@ -47,10 +47,6 @@ impl Button {
         }
     }
     
-    pub fn queue_free(&mut self) {
-        self.queue_free = true;
-    }
-
     pub fn update(&mut self, selected: bool) {
         let dim = measure_text(&self.text, None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 2.0;

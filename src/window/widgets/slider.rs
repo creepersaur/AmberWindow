@@ -13,7 +13,6 @@ pub struct SliderStyle {
 
 #[derive(Clone)]
 pub struct Slider {
-    pub text: &'static str,
     pub rect: Rect,
     pub hovering: bool,
     pub pressed: bool,
@@ -27,9 +26,8 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new(text: &'static str, font: Font, min: f32, max: f32, rect: Rect, uuid: Option<&'static str>) -> Self {
+    pub fn new(font: Font, min: f32, max: f32, rect: Rect, uuid: Option<&'static str>) -> Self {
         Self {
-            text,
             uuid: uuid.unwrap_or(""),
             rect,
             style: SliderStyle {
@@ -49,10 +47,6 @@ impl Slider {
         }
     }
     
-    pub fn queue_free(&mut self) {
-        self.queue_free = true;
-    }
-
     pub fn update(&mut self, selected: bool, mouse_position: &Vec2) {
         if is_mouse_button_released(MouseButton::Left) {
             self.pressed = false;
