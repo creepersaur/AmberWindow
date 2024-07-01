@@ -6,7 +6,7 @@ description = "An easy to use ImmediateMode gui library for Rust."
 license = "MIT" 
 
 [dependencies]
-macroquad = "*"
+macroquad = "0.4.8"
 
 [profile.dev]
 opt-level = 0
