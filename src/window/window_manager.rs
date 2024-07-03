@@ -29,8 +29,8 @@ use super::*;
 /// ```
 pub struct WindowManager {
     pub windows: Vec<Window>,
-    freed: Vec<String>,
-    font: Font,
+    pub freed: Vec<String>,
+    pub font: Font,
 }
 impl WindowManager {
     /// Create a new WindowManager
