@@ -11,7 +11,7 @@ async fn main() {
         if let Some(win) = windows.begin("") {
             win.name("")
                 .push(
-                    widget.Text("text", None, None)
+                    widget.Button("text", None, None)
                 );
         }
 

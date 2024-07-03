@@ -724,8 +724,14 @@ impl Window {
 
         if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
             self.widgets.push(widget.clone())
-        } else if widget.equate(&mut self.widgets[idx]) {
-            self.widgets[idx] = widget.clone();
+        } else if widget.equate(&mut self.get_widget(idx)) {
+            let mut clone = widget.clone();
+            
+            clone.as_button().pressed = self.get_widget(idx).as_button().pressed;
+            clone.as_button().hovering = self.get_widget(idx).as_button().hovering;
+            clone.as_button().is_just_pressed = self.get_widget(idx).as_button().is_just_pressed;
+
+            self.widgets[idx] = clone;
         }
         self.frame_pushed.push(widget);
 

@@ -75,7 +75,7 @@ impl Button {
             uuid: uuid.unwrap_or(""),
             rect: {
                 let dim = measure_text(text, None, 16, 1.0);
-                Rect::new(0.0, 0.0, dim.width * 1.2, 20.0)
+                Rect::new(0.0, 0.0, dim.width * 1.2 + 2.0, dim.height + 4.0)
             },
             style: ButtonStyle {
                 color: color.unwrap_or(WHITE),
@@ -91,9 +91,6 @@ impl Button {
             queue_free: false
         };
         
-        let dim = measure_text(x.text, None, 16, 1f32);
-        x.rect.w = dim.width * 1.2 + 2.0;
-        x.rect.h = dim.height + 4.0;
         x.button_rect.w = x.rect.w + 14.;
         x.button_rect.h = x.rect.h + 7.;
         
