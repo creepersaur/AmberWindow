@@ -1,6 +1,6 @@
 [package]
 name = "amberwindow"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 description = "An easy to use ImmediateMode gui library for Rust."
 license = "MIT" 
