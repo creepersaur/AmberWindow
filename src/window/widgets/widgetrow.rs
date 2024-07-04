@@ -21,6 +21,11 @@ pub struct WidgetRow {
         }
     }
 
+    pub fn set_uuid(&mut self, uuid: &'static str) -> &mut Self {
+        self.uuid = uuid;
+        self
+    }
+
     pub fn push(&mut self, value: Widget) {
         self.widgets.push(value);
     }

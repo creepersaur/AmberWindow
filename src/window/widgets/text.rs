@@ -11,7 +11,7 @@ pub struct Text {
     pub uuid: &'static str
 }
 impl Text {
-    pub fn new(text: &'static str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
+    pub fn new(text: &str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
         Self {
             text: text.to_owned(),
             uuid: uuid.unwrap_or(""),
@@ -20,6 +20,11 @@ impl Text {
             font: font.clone(),
             queue_free: false
         }
+    }
+
+    pub fn set_uuid(&mut self, uuid: &'static str) -> &mut Self {
+        self.uuid = uuid;
+        self
     }
     
     pub fn set_text(&mut self, text: String) -> &mut Self {

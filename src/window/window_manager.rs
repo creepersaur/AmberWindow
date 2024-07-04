@@ -38,7 +38,7 @@ impl WindowManager {
         Self {
             windows: vec![],
             freed: vec![],
-            font: load_ttf_font(font_path).await.unwrap()
+            font: load_ttf_font(font_path).await.unwrap(),
         }
     }
 

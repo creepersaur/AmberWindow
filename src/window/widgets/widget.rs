@@ -66,16 +66,14 @@ trait Equate {
 
 impl Equate for Text {
     fn equate(&self, other: &mut Self) -> bool {
-        self.text == other.text
-            && self.rect == other.rect
+        self.rect == other.rect
             && self.color == other.color
             && self.queue_free == other.queue_free
     }
 }
 impl Equate for Button {
     fn equate(&self, other: &mut Self) -> bool {
-        self.text == other.text
-            && self.rect.w == other.rect.w
+        self.rect.w == other.rect.w
             && self.rect.h == other.rect.h
             && self.button_rect.w == other.button_rect.w
             && self.button_rect.h == other.button_rect.h

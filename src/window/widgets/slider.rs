@@ -49,6 +49,11 @@ impl Slider {
             max
         }
     }
+
+    pub fn set_uuid(&mut self, uuid: &'static str) -> &mut Self {
+        self.uuid = uuid;
+        self
+    }
     
     pub fn update(&mut self, selected: bool, mouse_position: &Vec2) {
         if is_mouse_button_released(MouseButton::Left) {

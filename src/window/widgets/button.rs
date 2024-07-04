@@ -57,7 +57,7 @@ pub struct ButtonStyle {
 /// ```
 #[derive(Clone)]
 pub struct Button {
-    pub text: &'static str,
+    pub text: String,
     pub rect: Rect,
     pub hovering: bool,
     pub button_rect: Rect,
@@ -69,9 +69,9 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(text: &'static str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
+    pub fn new(text: &str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
         let mut x = Self {
-            text,
+            text: text.to_string(),
             uuid: uuid.unwrap_or(""),
             rect: {
                 let dim = measure_text(text, None, 16, 1.0);
@@ -96,9 +96,14 @@ impl Button {
         
         x
     }
+
+    pub fn set_uuid(&mut self, uuid: &'static str) -> &mut Self {
+        self.uuid = uuid;
+        self
+    }
     
     pub fn update(&mut self, selected: bool) {
-        let dim = measure_text(self.text, None, 16, 1f32);
+        let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 2.0;
         self.rect.h = dim.height + 4.0;
 
@@ -144,7 +149,7 @@ impl Button {
             },
         );
         draw_text_ex(
-            self.text,
+            self.text.as_str(),
             self.button_rect.x + self.button_rect.w/2.0 - self.rect.w/2.0,
             self.button_rect.y + self.button_rect.h/2.0 + 4.0,
             TextParams {

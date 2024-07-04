@@ -20,19 +20,14 @@ Uses macroquad as a backend.
 
 ## Hello Window
 ```
-use macroquad::prelude::*;
 use amberwindow::WindowManager;
+use macroquad::prelude::*;
 
-#[macroquad::main("Window")]
+#[macroquad::main("Hello")]
 async fn main() {
-    let font_path = "src\\font.ttf";
-    let mut windows = WindowManager::new(font_path).await;
-
+    let mut windows = WindowManager::new("src\\font.ttf").await;
     loop {
-        windows.begin("window")
-            .unwrap()
-            .name("Hello Window!");
-
+        windows.begin("");
         windows.update_windows();
         next_frame().await;
     }
@@ -42,20 +37,18 @@ async fn main() {
 ## Hello World
 
 ```
-use macroquad::prelude::*;
 use amberwindow::{WindowManager, WindowWidget};
+use macroquad::prelude::*;
 
-#[macroquad::main("Window")]
+#[macroquad::main("Hello")]
 async fn main() {
     let font_path = "src\\font.ttf";
-    let widget = WindowWidget::new(font_path).await;
     let mut windows = WindowManager::new(font_path).await;
+    let widget = WindowWidget::new(font_path).await;
 
     loop {
-        if let Some(window) = windows.begin("window") {
-            window.push(
-                widget.Text("Hello world!", None, None)
-            );
+        if let Some(win) = windows.begin("") {
+            widget.Text( win, "Hello world", None);
         }
 
         windows.update_windows();

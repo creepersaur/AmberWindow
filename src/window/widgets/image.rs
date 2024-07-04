@@ -19,6 +19,11 @@ impl DisplayImage {
             queue_free: false
         }
     }
+
+    pub fn set_uuid(&mut self, uuid: &'static str) -> &mut Self {
+        self.uuid = uuid;
+        self
+    }
     
     pub fn set_size(&mut self, size: Vec2) {
         self.rect.w = size.x;
