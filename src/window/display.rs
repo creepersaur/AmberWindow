@@ -53,7 +53,7 @@ pub struct Window {
     pub minimized: Option<f32>,
     minimize_hover: bool,
     minimize_pressed: bool,
-    button_style: ButtonStyle,
+    button_style: Option<ButtonStyle>,
     close_rect: Rect,
     close_pressed: bool,
     close_hovered: bool,
@@ -109,13 +109,7 @@ impl Window {
             minimized: None,
             minimize_hover: false,
             minimize_pressed: false,
-            button_style: ButtonStyle {
-                font: font.clone(),
-                color: WHITE,
-                bg_color: Color::new(0.3, 0.3, 0.3, 0.3),
-                hover_bg_color: Color::new(0.2, 0.2, 0.2, 0.3),
-                pressed_bg_color: Color::new(0.4, 0.4, 0.4, 0.4),
-            },
+            button_style: None,
             close_pressed: false,
             close_hovered: false,
             frame_pushed: vec![],
@@ -293,8 +287,6 @@ impl Window {
         let padding = 5.0;
         let padding_left = 7.0;
 
-        self.button_style(self.button_style.clone());
-
         for i in self.widgets.iter_mut() {
             if let Widget::Text(i) = i {
                 i.rect.x = self.rect.x + padding_left;
@@ -308,7 +300,7 @@ impl Window {
             } else if let Widget::Button(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                i.update(self.selected);
+                i.update(self.selected, *mouse_position);
 
                 last_y += i.rect.h + padding + 4.0;
                 if i.button_rect.w + 4.0 > max_width {
@@ -335,11 +327,20 @@ impl Window {
             } else if let Widget::WidgetRow(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                i.update(self.selected);
+                i.update(self.selected, *mouse_position);
 
                 last_y += i.rect.h + padding;
                 if i.rect.w > max_width {
                     max_width = i.rect.w;
+                }
+            } else if let Widget::Checkbox(i) = i {
+                i.rect.x = self.rect.x + padding_left;
+                i.rect.y = self.rect.y + last_y;
+                i.update(self.selected, *mouse_position);
+
+                last_y += i.rect.h + padding + 4.0;
+                if i.rect.w + 4.0 > max_width {
+                    max_width = i.rect.w + 4.0;
                 }
             }
         }
@@ -590,8 +591,11 @@ impl Window {
                 bottom_right,
                 bottom_right - Vec2::X * (self.scale_triangle_size + 2.),
                 bottom_right - Vec2::Y * (self.scale_triangle_size + 2.),
-                match self.scale_hover {
-                    true => {
+                match (self.scale_hover, self.scaling.is_some()) {
+                    (true, true) => {
+                        Color::from_vec(self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.3))
+                    },
+                    (true, _) => {
                         Color::from_vec(self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.4))
                     }
                     _ => self.style.scale_color,
@@ -601,6 +605,10 @@ impl Window {
     }
 
     fn render_widgets(&mut self, title_padding: f32) {
+        if let Some(style) = &self.button_style {
+            self.button_style(style.clone());
+        }
+
         // WIDGETS
         let mut last_y = 17.0 + title_padding;
         let padding = 5.0;
@@ -634,6 +642,12 @@ impl Window {
             } else if let Widget::WidgetRow(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
+                i.render();
+
+                last_y += i.rect.h + padding;
+            }  else if let Widget::Checkbox(i) = i {
+                i.rect.x = self.rect.x + padding_left;
+                i.rect.y = self.rect.y + last_y - 10.0;
                 i.render();
 
                 last_y += i.rect.h + padding;
@@ -694,47 +708,39 @@ impl Window {
     }
 
     /// Push multiple widgets to the window.
-    pub fn push_widgets(&mut self, widgets: Vec<Widget>) -> &mut Self {
+    pub fn push_widgets(&mut self, widgets: &mut Vec<Widget>) -> &mut Self {
         if widgets.len() < 1 {
             return self;
         }
 
-        let mut idx = self.frame_pushed.len();
-        for i in widgets.iter() {
-            let i_clone = i.clone();
-
-            if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
-                self.widgets.push(i_clone)
-            } else if !i.equate(&mut self.widgets[idx]) {
-                self.widgets[idx] = i_clone;
-            }
-            idx += 1;
-        }
-
-        for i in widgets.iter() {
-            self.frame_pushed.push(i.clone());
+        for i in widgets.iter_mut() {
+            self.push(i);
         }
 
         self
     }
 
     // Push a single widget to the window.
-    pub fn push(&mut self, widget: Widget) -> &mut Self {
+    pub fn push(&mut self, widget: &mut Widget) -> &mut Self {
         let mut idx = self.frame_pushed.len();
 
         if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
             self.widgets.push(widget.clone())
         } else if widget.equate(&mut self.get_widget(idx)) {
-            if let Widget::Text(ref mut widget) = widget.clone() {
+            if let Widget::Text(ref mut widget) = widget {
                 self.get_widget(idx).as_text().text = widget.text.clone();
-            } else if let Widget::Button(ref mut widget) = widget.clone() {
+            } else if let Widget::Button(ref mut widget) = widget {
                 widget.pressed = self.get_widget(idx).as_button().pressed;
                 widget.hovering = self.get_widget(idx).as_button().hovering;
                 widget.is_just_pressed = self.get_widget(idx).as_button().is_just_pressed;
-            } else if let Widget::Slider(ref mut widget) = widget.clone() {
+            } else if let Widget::Slider(ref mut widget) = widget {
                 widget.pressed = self.get_widget(idx).as_slider().pressed;
                 widget.hovering = self.get_widget(idx).as_slider().hovering;
                 widget.value = self.get_widget(idx).as_slider().value;
+            } else if let Widget::Checkbox(ref mut widget) = widget {
+                widget.pressed = self.get_widget(idx).as_checkbox().pressed;
+                widget.hovering = self.get_widget(idx).as_checkbox().hovering;
+                widget.value = self.get_widget(idx).as_checkbox().value;
             }
 
             self.widgets[idx] = widget.clone();
@@ -760,6 +766,11 @@ impl Window {
 
     /// Get a widget by its index (usize/int).
     pub fn get_widget(&mut self, idx: usize) -> &mut Widget {
+        &mut self.widgets[idx]
+    }
+
+    /// Get a widget by its index (usize/int). (`get_widget()` shorthand).
+    pub fn get(&mut self, idx: usize) -> &mut Widget {
         &mut self.widgets[idx]
     }
 

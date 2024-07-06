@@ -49,10 +49,7 @@ impl WindowManager {
     /// 
     /// ```
     /// if let Some(win) = windows.begin("my_window") {
-    ///     win.name("window_name")
-    ///         .push(
-    ///             WindowWidget::Text("hello", &font, None, None)
-    ///         );
+    ///     widget.Text(win, "hello");
     /// }
     /// ```
     pub fn begin(&mut self, id: &str) -> Option<&mut Window> {

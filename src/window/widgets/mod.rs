@@ -10,6 +10,8 @@ mod slider;
 pub use slider::*;
 mod image;
 pub use image::*;
+mod checkbox;
+pub use checkbox::*;
 
 mod window_widget;
 pub use window_widget::*;

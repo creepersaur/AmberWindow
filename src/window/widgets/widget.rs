@@ -10,6 +10,7 @@ pub enum Widget {
     WidgetRow(WidgetRow),
     Slider(Slider),
     DisplayImage(DisplayImage),
+    Checkbox(Checkbox),
 }
 
 impl Widget {
@@ -20,6 +21,7 @@ impl Widget {
             Widget::Slider(i) => i.equate(other.as_slider()),
             Widget::DisplayImage(i) => i.equate(other.as_image()),
             Widget::WidgetRow(i) => i.equate(other.as_widget_row()),
+            Widget::Checkbox(i) => i.equate(other.as_checkbox()),
             _ => false,
         }
     }
@@ -54,6 +56,13 @@ impl Widget {
     pub fn as_image(&mut self) -> &mut DisplayImage {
         match self {
             Widget::DisplayImage(ref mut obj) => Ok(obj),
+            _ => Err(Error),
+        }
+        .unwrap()
+    }
+    pub fn as_checkbox (&mut self) -> &mut Checkbox {
+        match self {
+            Widget::Checkbox(ref mut obj) => Ok(obj),
             _ => Err(Error),
         }
         .unwrap()
@@ -109,5 +118,11 @@ impl Equate for WidgetRow {
             idx += 1;
         }
         return true;
+    }
+}
+impl Equate for Checkbox {
+    fn equate(&self, other: &mut Self) -> bool {
+        self.rect.w == other.rect.w
+            && self.rect.h == other.rect.h
     }
 }

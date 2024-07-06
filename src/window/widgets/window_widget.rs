@@ -10,44 +10,64 @@ impl WindowWidget {
             font: load_ttf_font(font_path).await.unwrap(),
         }
     }
-    pub fn Text(&self, window: &mut Window, text: &str, color: Option<Color>) -> Text {
+
+    /// Push a `Text` widget to a window. Returns the index and a CLONE of the object.
+    pub fn Text(&self, win: &mut Window, text: &str, color: Option<Color>) -> (usize, Text) {
         let mut x = Widget::Text(
             Text::new(text, &self.font, color, None)
         );
 
-        window.push(x.clone());
-        x.as_text().clone()
+        win.push(&mut x.clone());
+        (win.widgets.len()-1, x.as_text().clone())
     }
-    pub fn Button(&self, window: &mut Window, text: &str) -> Button {
+
+    /// Push a `Button` widget to a window. Returns the index and a CLONE of the object.
+    pub fn Button(&self, win: &mut Window, text: &str) -> (usize, Button) {
         let mut x = Widget::Button(
             Button::new(text, &self.font, None, None)
         );
 
-        window.push(x.clone());
-        x.as_button().clone()
+        win.push(&mut x);
+        (win.widgets.len()-1, x.as_button().clone())
     }
-    pub fn Slider(&self, window: &mut Window, min: f32, max: f32, rect: Rect) -> Slider {
+
+    /// Push a `Slider` widget to a window. Returns the index and a CLONE of the object.
+    pub fn Slider(&self, win: &mut Window, min: f32, max: f32, rect: Rect) -> (usize, Slider) {
         let mut x = Widget::Slider(
             Slider::new(&self.font, min, max, rect, None)
         );
 
-        window.push(x.clone());
-        x.as_slider().clone()
+        win.push(&mut x.clone());
+        (win.widgets.len()-1, x.as_slider().clone())
     }
-    pub fn DisplayImage(&self, window: &mut Window, texture: Option<Texture2D>, size: Vec2) -> DisplayImage {
+
+    /// Push a `DisplayImage` widget to a window. Returns the index and a CLONE of the object.
+    pub fn DisplayImage(&self, win: &mut Window, texture: Option<Texture2D>, size: Vec2) -> (usize, DisplayImage) {
         let mut x = Widget::DisplayImage(
             DisplayImage::new(texture, size, None, None)
         );
 
-        window.push(x.clone());
-        x.as_image().clone()
+        win.push(&mut x.clone());
+        (win.widgets.len()-1, x.as_image().clone())
     }
-    pub fn WidgetRow(&self, window: &mut Window, widgets: Vec<Widget>) -> WidgetRow {
+
+    /// Push a `WidgetRow` widget to a window. Returns the index and a CLONE of the object.
+    pub fn WidgetRow(&self, win: &mut Window, widgets: Vec<Widget>) -> (usize, WidgetRow) {
         let mut x = Widget::WidgetRow(
             WidgetRow::new(widgets, None)
         );
 
-        window.push(x.clone());
-        x.as_widget_row().clone()
+        win.push(&mut x.clone());
+        (win.widgets.len()-1, x.as_widget_row().clone())
+    }
+    
+    /// Push a `Checkbox` widget to a window. Returns the index and a CLONE of the object.
+    pub fn Checkbox(&self, win: &mut Window, text: &str, ticked: bool) -> (usize, Checkbox) {
+        let mut x = Widget::Checkbox(
+            Checkbox::new(text, &self.font, Some(ticked), None, None)
+        );
+
+        win.push(&mut x);
+        (win.widgets.len()-1, x.as_checkbox().clone())
     }
 }

@@ -30,7 +30,7 @@ pub struct WidgetRow {
         self.widgets.push(value);
     }
 
-    pub fn update(&mut self, selected: bool) {
+    pub fn update(&mut self, selected: bool, mouse_position: Vec2) {
         let mut max_height = 0.0;
 
         let mut last_y = 0.0;
@@ -53,7 +53,7 @@ pub struct WidgetRow {
             } else if let Widget::Button(i) = i {
                 i.rect.x = self.rect.x + padding_left + last_y;
                 i.rect.y = self.rect.y;
-                i.update(selected);
+                i.update(selected, mouse_position);
 
                 if i.button_rect.h > max_height {
                     max_height = i.button_rect.h;
