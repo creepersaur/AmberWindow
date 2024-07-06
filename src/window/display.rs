@@ -741,6 +741,7 @@ impl Window {
                 widget.pressed = self.get_widget(idx).as_checkbox().pressed;
                 widget.hovering = self.get_widget(idx).as_checkbox().hovering;
                 widget.value = self.get_widget(idx).as_checkbox().value;
+                widget.is_just_pressed = self.get_widget(idx).as_checkbox().is_just_pressed;
             }
 
             self.widgets[idx] = widget.clone();

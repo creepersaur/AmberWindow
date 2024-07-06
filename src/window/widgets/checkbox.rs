@@ -14,6 +14,7 @@ pub struct Checkbox {
     pub value: bool,
     pub hovering: bool,
     pub pressed: bool,
+    pub is_just_pressed: bool,
 }
 impl Checkbox {
     pub fn new(
@@ -35,6 +36,7 @@ impl Checkbox {
             hovering: false,
             pressed: false,
             bg_color: Color::new(1.0, 0.7, 0., 1.0),
+            is_just_pressed: false,
         };
 
         let dim = measure_text(&x.text, None, 16, 1f32);
@@ -58,12 +60,14 @@ impl Checkbox {
         let dim = measure_text(&self.text, None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 7.0 + self.box_rect.w;
         self.rect.h = self.box_rect.h + 3.0;
-
         self.rect.y -= self.box_rect.h;
+
+        self.is_just_pressed = false;
 
         if is_mouse_button_released(MouseButton::Left) && self.hovering && self.pressed && selected
         {
             self.value = !self.value;
+            self.is_just_pressed = true;
         }
 
         if !is_mouse_button_down(MouseButton::Left) {
@@ -87,7 +91,7 @@ impl Checkbox {
 
         let bg_color = match self.value {
             true => self.bg_color,
-            false => Color::from_vec(self.bg_color.to_vec() - vec4(0., 0., 0., 0.4))
+            false => Color::from_vec(self.bg_color.to_vec() - vec4(0., 0., 0., 0.4)),
         };
 
         draw_rectangle(
