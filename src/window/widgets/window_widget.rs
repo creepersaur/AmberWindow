@@ -57,7 +57,7 @@ impl WindowWidget {
     }
 
     /// Push a `WidgetRow` widget to a window. Returns the index and a CLONE of the object.
-    pub fn WidgetRow(&self, win: &mut Window, widgets: Vec<Widget>) -> (usize, WidgetRow) {
+    pub fn WidgetRow(&self, win: &mut Window, widgets: &mut Vec<Widget>) -> (usize, WidgetRow) {
         let mut x = Widget::WidgetRow(
             WidgetRow::new(widgets, None)
         );

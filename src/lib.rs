@@ -25,7 +25,7 @@ use macroquad::prelude::*;
 
 #[macroquad::main("Hello")]
 async fn main() {
-    let mut windows = WindowManager::new("src\\font.ttf").await;
+    let mut windows = WindowManager::new();
     loop {
         windows.begin("");
         windows.update_windows();
@@ -42,13 +42,12 @@ use macroquad::prelude::*;
 
 #[macroquad::main("Hello")]
 async fn main() {
-    let font_path = "src\\font.ttf";
-    let mut windows = WindowManager::new(font_path).await;
-    let widget = WindowWidget::new(font_path).await;
+    let mut windows = WindowManager::new();
+    let widget = WindowWidget::new();
 
     loop {
         if let Some(win) = windows.begin("") {
-            widget.Text( win, "Hello world", None);
+            widget.Text(win, "Hello world");
         }
 
         windows.update_windows();

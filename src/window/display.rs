@@ -328,6 +328,7 @@ impl Window {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
                 i.update(self.selected, *mouse_position);
+                i.frame_pushed.clear();
 
                 last_y += i.rect.h + padding;
                 if i.rect.w > max_width {
@@ -650,7 +651,7 @@ impl Window {
                 i.render();
 
                 last_y += i.rect.h + padding;
-            }  else if let Widget::Checkbox(i) = i {
+            } else if let Widget::Checkbox(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y - 10.0;
                 i.render();
