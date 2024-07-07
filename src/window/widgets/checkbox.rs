@@ -7,7 +7,7 @@ pub struct Checkbox {
     pub rect: Rect,
     pub color: Color,
     pub bg_color: Color,
-    pub font: Font,
+    pub font: Option<Font>,
     pub queue_free: bool,
     pub uuid: &'static str,
     pub box_rect: Rect,
@@ -19,7 +19,7 @@ pub struct Checkbox {
 impl Checkbox {
     pub fn new(
         text: &str,
-        font: &Font,
+        font: Option<Font>,
         ticked: Option<bool>,
         color: Option<Color>,
         uuid: Option<&'static str>,
@@ -85,7 +85,10 @@ impl Checkbox {
     }
 
     pub fn render(&mut self) {
-        let dim = measure_text(&self.text, None, 16, 1f32);
+        let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
+        let dim_some = measure_text(&self.text.to_string(), self.font.as_ref(), 16, 1f32);
+
+        let height_diff = dim.height/dim_some.height;
         self.rect.w = dim.width * 1.2 + 7.0 + self.box_rect.w;
         self.rect.h = self.box_rect.h + 3.0;
 
@@ -114,9 +117,10 @@ impl Checkbox {
             self.rect.x + self.box_rect.w + 5.0,
             self.rect.y + self.rect.h / 1.5,
             TextParams {
-                font: Some(&self.font),
+                font: self.font.as_ref(),
                 color: self.color,
-                font_size: 14,
+                font_size: 16,
+                font_scale: height_diff,
                 ..Default::default()
             },
         );

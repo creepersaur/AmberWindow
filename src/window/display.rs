@@ -3,12 +3,12 @@
 use std::vec;
 
 use super::widgets::*;
-use macroquad::prelude::*;
+use macroquad::{prelude::*, ui};
 
 /// Style > Custom window styling.
 #[derive(Clone)]
 pub struct WindowStyle {
-    pub font: Font,
+    pub font: Option<Font>,
     pub bg_color: Color,
     pub tb_color: Color,
     pub border_color: Color,
@@ -65,7 +65,7 @@ impl Window {
     pub fn new(
         name: &str,
         rect: Rect,
-        font: &Font,
+        font: Option<Font>,
         widgets: Option<Vec<Widget>>,
         id: String,
         uuid: Option<String>,
@@ -77,7 +77,7 @@ impl Window {
             rect,
             tb_rect: Rect::new(rect.x, rect.y, rect.w, 20.0),
             style: WindowStyle {
-                font: font.clone(),
+                font: font,
                 bg_color: Color::new(0.1, 0.1, 0.1, 1.0),
                 tb_color: GOLD, //DARKBLUE,
                 border_color: BLANK,
@@ -458,6 +458,11 @@ impl Window {
     }
 
     fn render_topbar_and_title(&mut self) {
+        let dim = measure_text(&self.name.to_string(), None, 16, 1f32);
+        let dim_some = measure_text(&self.name.to_string(), self.style.font.as_ref(), 16, 1f32);
+
+        let height_diff = dim.height/dim_some.height;
+
         // TOP BAR
         draw_rectangle(
             self.tb_rect.x,
@@ -478,10 +483,10 @@ impl Window {
                 },
             self.tb_rect.y + 15f32,
             TextParams {
-                font: Some(&self.style.font),
+                font: self.style.font.as_ref(),
                 font_size: 16,
-                font_scale: 0.8,
                 color: self.style.title_color,
+                font_scale: height_diff,
                 ..Default::default()
             },
         );
@@ -790,8 +795,8 @@ impl Window {
             if i.as_image().uuid == uuid {
                 return Some(i);
             }
-            if let Some(obj) = i.as_widget_row().get_widget(uuid) {
-                return Some(obj);
+            if i.as_widget_row().uuid == uuid {
+                return Some(i);
             }
         }
         return None;

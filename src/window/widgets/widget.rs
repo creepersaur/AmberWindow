@@ -90,10 +90,7 @@ impl Equate for Button {
 }
 impl Equate for Slider {
     fn equate(&self, other: &mut Self) -> bool {
-        self.rect.w == other.rect.w
-            && self.rect.h == other.rect.h
-            //&& self.value == other.value
-            && self.min == other.min
+        self.min == other.min
             && self.max == other.max
     }
 }

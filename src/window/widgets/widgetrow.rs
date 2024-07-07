@@ -12,9 +12,11 @@ pub struct WidgetRow {
     pub widgets: Vec<Widget>,
     pub rect: Rect,
     pub uuid: &'static str,
+    pub frame_pushed: Vec<Widget>
 } impl WidgetRow {
     pub fn new(widgets: Vec<Widget>, uuid: Option<&'static str>) -> Self{
         Self {
+            frame_pushed: vec![],
             widgets,
             rect: Rect::new(0., 0., 0., 0.),
             uuid: uuid.unwrap_or(""),
@@ -26,11 +28,59 @@ pub struct WidgetRow {
         self
     }
 
-    pub fn push(&mut self, value: Widget) {
-        self.widgets.push(value);
+    /// Push multiple widgets to the window.
+    pub fn push_widgets(&mut self, widgets: &mut Vec<Widget>) -> &mut Self {
+        if widgets.len() < 1 {
+            return self;
+        }
+
+        for i in widgets.iter_mut() {
+            self.push(i);
+        }
+
+        self
+    }
+    
+    /// Get a widget by its index (usize/int).
+    pub fn get_widget(&mut self, idx: usize) -> &mut Widget {
+        &mut self.widgets[idx]
+    }
+
+    // Push a single widget to the window.
+    pub fn push(&mut self, widget: &mut Widget) -> &mut Self {
+        let mut idx = self.frame_pushed.len();
+
+        if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
+            self.widgets.push(widget.clone())
+        } else if widget.equate(&mut self.get_widget(idx)) {
+            if let Widget::Text(ref mut widget) = widget {
+                self.get_widget(idx).as_text().text = widget.text.clone();
+            } else if let Widget::Button(ref mut widget) = widget {
+                widget.pressed = self.get_widget(idx).as_button().pressed;
+                widget.hovering = self.get_widget(idx).as_button().hovering;
+                widget.is_just_pressed = self.get_widget(idx).as_button().is_just_pressed;
+            } else if let Widget::Slider(ref mut widget) = widget {
+                widget.pressed = self.get_widget(idx).as_slider().pressed;
+                widget.hovering = self.get_widget(idx).as_slider().hovering;
+                widget.value = self.get_widget(idx).as_slider().value;
+            } else if let Widget::Checkbox(ref mut widget) = widget {
+                widget.pressed = self.get_widget(idx).as_checkbox().pressed;
+                widget.hovering = self.get_widget(idx).as_checkbox().hovering;
+                widget.value = self.get_widget(idx).as_checkbox().value;
+                widget.is_just_pressed = self.get_widget(idx).as_checkbox().is_just_pressed;
+            }
+
+            self.widgets[idx] = widget.clone();
+        } else {
+            self.widgets[idx] = widget.clone();
+        }
+        self.frame_pushed.push(widget.clone());
+
+        self
     }
 
     pub fn update(&mut self, selected: bool, mouse_position: Vec2) {
+        self.frame_pushed.clear();
         let mut max_height = 0.0;
 
         let mut last_y = 0.0;
@@ -114,22 +164,5 @@ pub struct WidgetRow {
                 i.style = style.clone();
             }
         }
-    }
-
-    pub fn get_widget(&mut self, uuid: &str) -> Option<&mut Widget> {
-        for i in self.widgets.iter_mut() {
-            if let Widget::Text(obj) = i {
-                if obj.uuid == uuid { return Some(i) }
-            } else if let Widget::Button(obj) = i {
-                if obj.uuid == uuid { return Some(i) }
-            } else if let Widget::Slider(obj) = i {
-                if obj.uuid == uuid { return Some(i) }
-            } else if let Widget::WidgetRow(obj) = i {
-                if let Some(obj) = obj.get_widget(uuid) {
-                   return Some(obj)
-                }
-            }
-        }
-        return None
     }
 }

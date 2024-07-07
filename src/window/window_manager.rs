@@ -10,11 +10,10 @@ use super::*;
 /// ### Creating and updating windows
 /// 
 /// ```
-/// let font = load_font_ttf("path").await.unwrap(); // Load font
 /// let windows = WindowManager::new(); // Create new window manager
 /// 
 /// loop {
-///     windows.begin("window", &font); // returns `Option<Window>`
+///     windows.begin("window"); // returns `Option<Window>`
 ///     windows.update_windows();       // Update + Render all windows.
 /// }
 /// ```
@@ -30,16 +29,23 @@ use super::*;
 pub struct WindowManager {
     pub windows: Vec<Window>,
     pub freed: Vec<String>,
-    pub font: Font,
+    pub font: Option<Font>,
 }
 impl WindowManager {
     /// Create a new WindowManager
-    pub async fn new(font_path: &str) -> Self {
+    pub fn new() -> Self {
         Self {
             windows: vec![],
             freed: vec![],
-            font: load_ttf_font(font_path).await.unwrap(),
+            font: None,
         }
+    }
+
+    pub async fn set_font(&mut self, font_path: &str) -> &mut Self {
+        self.font = Some(
+            load_ttf_font(font_path).await.unwrap()
+        );
+        self
     }
 
     /// Create a new immediate window with a ***unique*** `id`.
@@ -64,7 +70,7 @@ impl WindowManager {
             let mut win = Window::new(
                 "Window",
                 Rect::new(0., 0., 200., 200.),
-                &self.font,
+                self.font.clone(),
                 None,
                 id.to_string(),
                 Some(uuid.to_string()),

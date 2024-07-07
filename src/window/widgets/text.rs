@@ -6,18 +6,18 @@ pub struct Text {
     pub text: String,
     pub rect: Rect,
     pub color: Color,
-    pub font: Font,
+    pub font: Option<Font>,
     pub queue_free: bool,
     pub uuid: &'static str
 }
 impl Text {
-    pub fn new(text: &str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
+    pub fn new(text: &str, font: Option<Font>, color: Option<Color>, uuid: Option<&'static str>) -> Self {
         Self {
             text: text.to_owned(),
             uuid: uuid.unwrap_or(""),
             rect: Rect::new(0.,0.,0.,0.),
             color: color.unwrap_or(WHITE),
-            font: font.clone(),
+            font: font,
             queue_free: false
         }
     }
@@ -39,18 +39,22 @@ impl Text {
     }
 
     pub fn render(&mut self) {
-        let dim = measure_text(&self.text, None, 16, 1f32);
+        let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
+        let dim_some = measure_text(&self.text.to_string(), self.font.as_ref(), 16, 1f32);
+
+        let height_diff = dim.height/dim_some.height;
         self.rect.w = dim.width * 1.2 + 2.0;
         self.rect.h = dim.height + 3.0;
         
         draw_text_ex(
             self.text.as_str(),
-            self.rect.x,
-            self.rect.y,
+            f32::floor(self.rect.x),
+            f32::floor(self.rect.y),
             TextParams {
-                font: Some(&self.font),
+                font: self.font.as_ref(),
                 color: self.color,
-                font_size: 14,
+                font_size: 16,
+                font_scale: height_diff * 1.1,
                 ..Default::default()
             }
         );

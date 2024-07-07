@@ -2,19 +2,24 @@ use super::super::*;
 
 /// Widget > WindowWidget (Manages widget creation).
 pub struct WindowWidget {
-    pub font: Font
+    pub font: Option<Font>
 }
 impl WindowWidget {
-    pub async fn new(font_path: &str) -> Self {
+    pub fn new() -> Self {
         Self {
-            font: load_ttf_font(font_path).await.unwrap(),
+            font: None,
         }
+    }
+
+    pub async fn set_font(&mut self, font_path: &str) -> &mut Self {
+        self.font = Some(load_ttf_font(font_path).await.unwrap());
+        self
     }
 
     /// Push a `Text` widget to a window. Returns the index and a CLONE of the object.
     pub fn Text(&self, win: &mut Window, text: &str, color: Option<Color>) -> (usize, Text) {
         let mut x = Widget::Text(
-            Text::new(text, &self.font, color, None)
+            Text::new(text, self.font.clone(), color, None)
         );
 
         win.push(&mut x.clone());
@@ -24,7 +29,7 @@ impl WindowWidget {
     /// Push a `Button` widget to a window. Returns the index and a CLONE of the object.
     pub fn Button(&self, win: &mut Window, text: &str) -> (usize, Button) {
         let mut x = Widget::Button(
-            Button::new(text, &self.font, None, None)
+            Button::new(text, self.font.clone(), None, None)
         );
 
         win.push(&mut x);
@@ -32,9 +37,9 @@ impl WindowWidget {
     }
 
     /// Push a `Slider` widget to a window. Returns the index and a CLONE of the object.
-    pub fn Slider(&self, win: &mut Window, min: f32, max: f32, rect: Rect) -> (usize, Slider) {
+    pub fn Slider(&self, win: &mut Window, min: f32, max: f32, size: Vec2) -> (usize, Slider) {
         let mut x = Widget::Slider(
-            Slider::new(&self.font, min, max, rect, None)
+            Slider::new(self.font.clone(), min, max, size, None)
         );
 
         win.push(&mut x.clone());
@@ -64,7 +69,7 @@ impl WindowWidget {
     /// Push a `Checkbox` widget to a window. Returns the index and a CLONE of the object.
     pub fn Checkbox(&self, win: &mut Window, text: &str, ticked: bool) -> (usize, Checkbox) {
         let mut x = Widget::Checkbox(
-            Checkbox::new(text, &self.font, Some(ticked), None, None)
+            Checkbox::new(text, self.font.clone(), Some(ticked), None, None)
         );
 
         win.push(&mut x);

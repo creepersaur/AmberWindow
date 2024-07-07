@@ -3,15 +3,23 @@ use amberwindow::*;
 
 #[macroquad::main("Hello")]
 async fn main() {
-    let font = "src\\font.ttf";
-    let mut windows = WindowManager::new(font).await;
-    let widget = WindowWidget::new(font).await;
+    let mut windows = WindowManager::new();
+    windows.set_font("src\\font.ttf").await;
+
+    let mut widget = WindowWidget::new();
+    widget.set_font("src\\font.ttf").await;
+
+    let font = windows.font.clone();
 
     loop {
         if let Some(win) = windows.begin("") {
-            widget.Checkbox(win, "hello", true);
-            widget.Button(win, "hi");
-            //widget.Checkbox(win, "hello", false);
+            win.name("Debug");
+            widget.Text(win, "Hello, world 123", None);
+            widget.WidgetRow(win, vec![
+                Widget::Button(Button::new("bruh", font.clone(), None, None))
+            ]);
+            widget.Slider(win, 0., 100., vec2(win.rect.w-15.0,15f32));
+            widget.Checkbox(win, "Auto update", false);
         }
         
         windows.update_windows();

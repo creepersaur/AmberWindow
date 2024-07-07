@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 /// Style > Custom Button styling.
 #[derive(Clone)]
 pub struct ButtonStyle {
-    pub font: Font,
+    pub font: Option<Font>,
     pub color: Color,
     pub bg_color: Color,
     pub hover_bg_color: Color,
@@ -59,7 +59,7 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(text: &str, font: &Font, color: Option<Color>, uuid: Option<&'static str>) -> Self {
+    pub fn new(text: &str, font: Option<Font>, color: Option<Color>, uuid: Option<&'static str>) -> Self {
         let mut x = Self {
             text: text.to_string(),
             uuid: uuid.unwrap_or(""),
@@ -127,6 +127,11 @@ impl Button {
     }
 
     pub fn render(&mut self) {
+        let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
+        let dim_some = measure_text(&self.text.to_string(), self.style.font.as_ref(), 16, 1f32);
+
+        let height_diff = dim.height/dim_some.height;
+
         draw_rectangle(
             self.button_rect.x,
             self.button_rect.y,
@@ -140,12 +145,13 @@ impl Button {
         );
         draw_text_ex(
             self.text.as_str(),
-            self.button_rect.x + self.button_rect.w/2.0 - self.rect.w/2.0,
-            self.button_rect.y + self.button_rect.h/2.0 + 4.0,
+            f32::floor(self.button_rect.x + self.button_rect.w/2.0 - dim.width/2.0),
+            f32::floor(self.button_rect.y + self.button_rect.h/2.0 + 4.0),
             TextParams {
-                font: Some(&self.style.font),
+                font: self.style.font.as_ref(),
                 color: self.style.color,
-                font_size: 14,
+                font_size: 16,
+                font_scale: height_diff * 1.3,
                 ..Default::default()
             },
         );
