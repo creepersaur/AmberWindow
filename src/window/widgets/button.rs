@@ -149,11 +149,11 @@ impl Button {
             f32::floor(self.button_rect.y + self.button_rect.h/2.0 + 4.0),
             TextParams {
                 font: self.style.font.as_ref(),
-                color: self.style.color,
                 font_size: 16,
-                font_scale: height_diff * 1.3,
+                color: self.style.color,
+                font_scale: height_diff,
                 ..Default::default()
-            },
+            }
         );
     }
 

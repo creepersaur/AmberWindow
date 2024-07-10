@@ -118,11 +118,11 @@ impl Checkbox {
             self.rect.y + self.rect.h / 1.5,
             TextParams {
                 font: self.font.as_ref(),
-                color: self.color,
                 font_size: 16,
+                color: self.color,
                 font_scale: height_diff,
                 ..Default::default()
-            },
+            }
         );
     }
 }

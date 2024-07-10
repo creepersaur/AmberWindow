@@ -137,11 +137,11 @@ impl Slider {
             f32::floor(self.rect.y + self.rect.h / 2.0 + dim.height / 2.0 + 1.),
             TextParams {
                 font: self.font.as_ref(),
-                font_size,
-                color: WHITE,
-                font_scale: height_diff * 1.3,
+                font_size: 16,
+                color: self.style.color,
+                font_scale: height_diff,
                 ..Default::default()
-            },
+            }
         );
     }
 

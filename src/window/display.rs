@@ -11,11 +11,13 @@ pub struct WindowStyle {
     pub font: Option<Font>,
     pub bg_color: Color,
     pub tb_color: Color,
+    pub deselected_tb_color: Color,
     pub border_color: Color,
     pub selected_border_color: Color,
     pub title_color: Color,
     pub scale_color: Color,
     pub minimize_color: Color,
+    pub close_color: Color,
 }
 
 /// # Properties > Properties for windows.
@@ -80,11 +82,13 @@ impl Window {
                 font: font,
                 bg_color: Color::new(0.1, 0.1, 0.1, 1.0),
                 tb_color: GOLD, //DARKBLUE,
+                deselected_tb_color: Color::new(1.0, 0.8, 0.0, 0.8),
                 border_color: BLANK,
                 selected_border_color: ORANGE,
                 title_color: BLACK,
                 scale_color: Color::new(1.0, 0.7, 0., 0.25),
                 minimize_color: BLACK,
+                close_color: BLACK,
             },
             properties: WindowProperties {
                 wall_collision: true,
@@ -470,7 +474,10 @@ impl Window {
             self.tb_rect.y,
             self.tb_rect.w,
             self.tb_rect.h,
-            self.style.tb_color,
+            match self.selected {
+                true => self.style.tb_color,
+                false => self.style.deselected_tb_color,
+            },
         );
 
         // WINDOW TITLE
@@ -562,8 +569,8 @@ impl Window {
             self.close_rect.w,
             self.close_rect.h,
             match self.close_hovered {
-                true => Color::new(0., 0., 0., 0.33),
-                _ => Color::new(0., 0., 0., 0.2),
+                true => Color::new(0., 0., 0., 0.2),
+                _ => Color::new(0., 0., 0., 0.1),
             },
         );
 
@@ -575,7 +582,7 @@ impl Window {
             self.close_rect.x + self.close_rect.w - 4.,
             self.close_rect.y + self.close_rect.h - 4.,
             x_thickness,
-            BLACK,
+            self.style.close_color,
         );
 
         draw_line(
@@ -584,7 +591,7 @@ impl Window {
             self.close_rect.x + 4.,
             self.close_rect.y + self.close_rect.h - 4.,
             x_thickness,
-            BLACK,
+            self.style.close_color,
         )
     }
 
@@ -766,6 +773,18 @@ impl Window {
                 i.style = style.clone();
             } else if let Widget::WidgetRow(i) = i {
                 i.button_style(&style);
+            }
+        }
+        self
+    }
+    
+    /// Set the window's slider' styles.
+    pub fn slider_style(&mut self, style: SliderStyle) -> &mut Self {
+        for i in self.widgets.iter_mut() {
+            if let Widget::Slider(i) = i {
+                i.style = style.clone();
+            } else if let Widget::WidgetRow(i) = i {
+                i.slider_style(&style);
             }
         }
         self

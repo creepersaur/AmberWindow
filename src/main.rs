@@ -4,10 +4,7 @@ use macroquad::prelude::*;
 #[macroquad::main("Hello")]
 async fn main() {
     let mut windows = WindowManager::new();
-    windows.set_font("src\\font.ttf").await;
-
-    let mut widget = WindowWidget::new();
-    widget.set_font("src\\font.ttf").await;
+    let widget = WindowWidget::new();
 
     let font = windows.font.clone();
 
@@ -20,11 +17,13 @@ async fn main() {
                 font: font.clone(),
                 bg_color: Color::from_hex(0x151617),
                 tb_color: Color::from_hex(0x294a7a),
+                deselected_tb_color: BLACK,
                 border_color: BLANK,
-                selected_border_color: BLANK,
+                selected_border_color: Color::new(1.,1.,1., 0.7),
                 title_color: WHITE,
                 scale_color: Color::from_hex(0x294a7a),
-                minimize_color: WHITE
+                minimize_color: WHITE,
+                close_color: WHITE
             });
             widget.Text(win, "Hello, world 123", None);
             widget.Button(win, "Save");
@@ -42,6 +41,13 @@ async fn main() {
                 hover_bg_color: Color::from_hex(0x496994),
                 pressed_bg_color: Color::from_hex(0x274972)
             });
+            win.slider_style(SliderStyle{
+                color: WHITE,
+                bg_color: Color::from_hex(0x163861),
+                hover_bg_color: Color::from_hex(0x274972),
+                value_color: SKYBLUE,
+            });
+            win.get(3).as_checkbox().bg_color = Color::from_hex(0x274972);
         }
 
         windows.update_windows();

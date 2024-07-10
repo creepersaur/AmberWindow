@@ -52,9 +52,9 @@ impl Text {
             f32::floor(self.rect.y),
             TextParams {
                 font: self.font.as_ref(),
-                color: self.color,
                 font_size: 16,
-                font_scale: height_diff * 1.1,
+                color: self.color,
+                font_scale: height_diff,
                 ..Default::default()
             }
         );

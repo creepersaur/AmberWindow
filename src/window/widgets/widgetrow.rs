@@ -198,4 +198,14 @@ impl WidgetRow {
             }
         }
     }
+
+    /// Set the window's slider' styles.
+    pub fn slider_style(&mut self, style: &SliderStyle) -> &mut Self {
+        for i in self.widgets.iter_mut() {
+            if let Widget::Slider(i) = i {
+                i.style = style.clone();
+            }
+        }
+        self
+    }
 }
