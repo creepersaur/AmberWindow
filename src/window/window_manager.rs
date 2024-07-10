@@ -28,6 +28,7 @@ use super::*;
 /// ```
 pub struct WindowManager {
     pub windows: Vec<Window>,
+    pub frame_pushed: Vec<String>,
     pub freed: Vec<String>,
     pub font: Option<Font>,
 }
@@ -36,6 +37,7 @@ impl WindowManager {
     pub fn new() -> Self {
         Self {
             windows: vec![],
+            frame_pushed: vec![],
             freed: vec![],
             font: None,
         }
@@ -46,6 +48,14 @@ impl WindowManager {
             load_ttf_font(font_path).await.unwrap()
         );
         self
+    }
+
+    // Select a window (passing in a window)
+    pub fn select(&mut self, idx: usize) {
+        for i in self.windows.iter_mut() {
+            i.selected = false;
+        }
+        self.windows[idx].selected = true;
     }
 
     /// Create a new immediate window with a ***unique*** `id`.
@@ -59,6 +69,8 @@ impl WindowManager {
     /// }
     /// ```
     pub fn begin(&mut self, id: &str) -> Option<&mut Window> {
+        self.frame_pushed.push(id.to_string());
+
         if let Some(idx) = self.get_window_index(id) {
             if !self.check_freed(id) {
                 self.windows[idx].frame_pushed.clear();
@@ -102,10 +114,12 @@ impl WindowManager {
     pub fn update_windows(&mut self) {
         let mouse_position = vec2(mouse_position().0, mouse_position().1);
 
-        let mut idx: usize = 0;
+        let mut win_idx: usize = 0;
         let mut selected: Option<usize> = None;
 
         let mut windows = &mut self.windows;
+
+        windows.retain(|x| self.frame_pushed.contains(&x.id));
 
         for win in windows.iter_mut() {
             if self.freed.contains(&win.uuid) { continue }
@@ -121,15 +135,17 @@ impl WindowManager {
             win.update(selected, &mouse_position);
 
             if win.selected {
-                selected = Some(idx);
+                selected = Some(win_idx);
             }
 
-            idx += 1;
+            win_idx += 1;
         }
+
         if let Some(idx) = selected {
-            if windows.len() > 1 {
-                windows.insert(0, windows[idx-1].clone());
-                windows.remove((idx).into());
+            if windows.len() > 0 {
+                let clone = windows[idx].clone();
+                windows.remove(idx);
+                windows.insert(0, clone);
             }
         }
 
@@ -140,6 +156,8 @@ impl WindowManager {
 
             win.render();
         }
+
+        self.frame_pushed.clear();
     }
 
     /// Get the index of a window using its `id`.

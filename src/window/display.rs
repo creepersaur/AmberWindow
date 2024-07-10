@@ -243,7 +243,7 @@ impl Window {
         if is_mouse_button_pressed(MouseButton::Left) {
             if self.rect.contains(*mouse_position) {
                 if selected == None {
-                    self.selected = true
+                    self.selected = true;
                 }
             } else {
                 self.selected = false;
