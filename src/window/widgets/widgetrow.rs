@@ -7,7 +7,7 @@ use super::super::*;
 ///
 /// Allows for placing widgets into horizontally, as opposed to only in rows.
 /// **You cannot have WidgetRows inside of WidgetRows**.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct WidgetRow {
     pub widgets: Vec<Widget>,
     pub rect: Rect,

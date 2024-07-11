@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 /// Widget > Checkbox (Toggled bool value).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Checkbox {
     pub text: String,
     pub rect: Rect,

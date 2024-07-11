@@ -1,8 +1,10 @@
+use std::default;
+
 use camera::mouse;
 use macroquad::prelude::*;
 
 /// Style > Custom Slider Styling.
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct SliderStyle {
     pub color: Color,
     pub hover_bg_color: Color,
@@ -11,7 +13,7 @@ pub struct SliderStyle {
 }
 
 /// Widget > Slider (Simple floating point slider).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Slider {
     pub font: Option<Font>,
     pub rect: Rect,
@@ -28,7 +30,7 @@ pub struct Slider {
 
 impl Slider {
     /// Create a new slider.
-    pub fn new(font: Option<Font>, min: f32, max: f32, size: Vec2, uuid: Option<&'static str>) -> Self {
+    pub fn new(font: Option<Font>, min: f32, max: f32, default: Option<f32>, size: Vec2, uuid: Option<&'static str>) -> Self {
         Self {
             font: font.clone(),
             uuid: uuid.unwrap_or(""),
@@ -43,7 +45,7 @@ impl Slider {
             pressed: false,
             queue_free: false,
             percentage: 0.0,
-            value: min,
+            value: default.unwrap_or(min),
             min,
             max,
         }

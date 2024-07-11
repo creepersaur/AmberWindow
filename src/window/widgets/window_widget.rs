@@ -37,13 +37,13 @@ impl WindowWidget {
     }
 
     /// Push a `Slider` widget to a window. Returns the index and a CLONE of the object.
-    pub fn Slider(&self, win: &mut Window, min: f32, max: f32, size: Vec2) -> (usize, Slider) {
+    pub fn Slider(&self, win: &mut Window, min: f32, max: f32, default: Option<f32>, size: Vec2) -> (usize, Slider) {
         let mut x = Widget::Slider(
-            Slider::new(self.font.clone(), min, max, size, None)
+            Slider::new(self.font.clone(), min, max, default, size, None)
         );
 
-        win.push(&mut x.clone());
-        (win.widgets.len()-1, x.as_slider().clone())
+        let idx = win.push(&mut x.clone());
+        (win.widgets.len()-1, win.get(idx).as_slider().clone())
     }
 
     /// Push a `DisplayImage` widget to a window. Returns the index and a CLONE of the object.

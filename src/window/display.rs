@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use std::vec;
+use std::{any::Any, vec};
 
 use super::widgets::*;
 use macroquad::{prelude::*, ui};
@@ -720,6 +720,12 @@ impl Window {
         self
     }
 
+    // Clear the window background + draw a color as the background.
+    pub fn set_background(&mut self, color: Color) -> &mut Self {
+        self.style.bg_color = color;
+        self
+    }
+
     /// Push multiple widgets to the window.
     pub fn push_widgets(&mut self, widgets: &mut Vec<Widget>) -> &mut Self {
         if widgets.len() < 1 {
@@ -734,36 +740,39 @@ impl Window {
     }
 
     // Push a single widget to the window.
-    pub fn push(&mut self, widget: &mut Widget) -> &mut Self {
+    pub fn push(&mut self, widget: &mut Widget) -> usize {
         let mut idx = self.frame_pushed.len();
 
         if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
-            self.widgets.push(widget.clone())
-        } else if widget.equate(&mut self.get_widget(idx)) {
+            self.widgets.push(widget.clone());
+        } else if matches!(widget.clone(), self_Clone) && widget.equate(&mut self.get_widget(idx)) {
             if let Widget::Text(ref mut widget) = widget {
                 self.get_widget(idx).as_text().text = widget.text.clone();
             } else if let Widget::Button(ref mut widget) = widget {
-                widget.pressed = self.get_widget(idx).as_button().pressed;
-                widget.hovering = self.get_widget(idx).as_button().hovering;
-                widget.is_just_pressed = self.get_widget(idx).as_button().is_just_pressed;
+                let obj = self.get_widget(idx).as_button();
+                widget.pressed = obj.pressed;
+                widget.hovering = obj.hovering;
+                widget.is_just_pressed = obj.is_just_pressed;
             } else if let Widget::Slider(ref mut widget) = widget {
-                widget.pressed = self.get_widget(idx).as_slider().pressed;
-                widget.hovering = self.get_widget(idx).as_slider().hovering;
-                widget.value = self.get_widget(idx).as_slider().value;
+                let obj = self.get_widget(idx).as_slider();
+                widget.pressed = obj.pressed;
+                widget.hovering = obj.hovering;
+                widget.value = obj.value;
             } else if let Widget::Checkbox(ref mut widget) = widget {
-                widget.pressed = self.get_widget(idx).as_checkbox().pressed;
-                widget.hovering = self.get_widget(idx).as_checkbox().hovering;
-                widget.value = self.get_widget(idx).as_checkbox().value;
-                widget.is_just_pressed = self.get_widget(idx).as_checkbox().is_just_pressed;
+                let obj = self.get_widget(idx).as_checkbox();
+                widget.pressed = obj.pressed;
+                widget.hovering = obj.hovering;
+                widget.value = obj.value;
+                widget.is_just_pressed = obj.is_just_pressed;
             }
 
             self.widgets[idx] = widget.clone();
         } else {
-            self.widgets[idx] = widget.clone();
+            self.widgets.push(widget.clone());
         }
         self.frame_pushed.push(widget.clone());
 
-        self
+        idx
     }
     
     /// Set the window's buttons' styles.

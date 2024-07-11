@@ -3,7 +3,7 @@ use super::super::*;
 use std::fmt::Error;
 
 /// Widget > Widget (Base enum for all widgets).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Widget {
     Text(Text),
     Button(Button),
@@ -18,7 +18,10 @@ impl Widget {
         match self {
             Widget::Text(i) => i.equate(other.as_text()),
             Widget::Button(i) => i.equate(other.as_button()),
-            Widget::Slider(i) => i.equate(other.as_slider()),
+            Widget::Slider(i) => {
+                let x = i.equate(other.as_slider());
+                return x
+            },
             Widget::DisplayImage(i) => i.equate(other.as_image()),
             Widget::WidgetRow(i) => i.equate(other.as_widget_row()),
             Widget::Checkbox(i) => i.equate(other.as_checkbox()),

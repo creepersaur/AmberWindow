@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 /// Widget > Text (Renders single-line text).
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Text {
     pub text: String,
     pub rect: Rect,

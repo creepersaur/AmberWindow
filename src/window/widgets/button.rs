@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 use std::sync::{Arc, Mutex};
 
 /// Style > Custom Button styling.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ButtonStyle {
     pub font: Option<Font>,
     pub color: Color,
@@ -45,7 +45,7 @@ pub struct ButtonStyle {
 ///     }
 /// }
 /// ```
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Button {
     pub text: String,
     pub rect: Rect,

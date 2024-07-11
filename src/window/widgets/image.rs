@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 /// Widget > DisplayImage (Displays an image on the window).
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct DisplayImage {
     pub rect: Rect,
     pub texture: Texture2D,
