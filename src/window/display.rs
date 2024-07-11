@@ -291,6 +291,8 @@ impl Window {
         let padding = 5.0;
         let padding_left = 7.0;
 
+        let mouse_released = is_mouse_button_released(MouseButton::Left);
+
         for i in self.widgets.iter_mut() {
             if let Widget::Text(i) = i {
                 i.rect.x = self.rect.x + padding_left;
@@ -304,7 +306,7 @@ impl Window {
             } else if let Widget::Button(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                i.update(self.selected, *mouse_position);
+                i.update(self.selected, *mouse_position, mouse_released);
 
                 last_y += i.rect.h + padding + 4.0;
                 if i.button_rect.w + 4.0 > max_width {
@@ -313,7 +315,7 @@ impl Window {
             } else if let Widget::Slider(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y - 10.0;
-                i.update(self.selected, mouse_position);
+                i.update(self.selected, mouse_position, mouse_released);
 
                 last_y += i.rect.h + padding + 1.0;
                 if i.rect.w + 4.0 > max_width {
@@ -331,7 +333,7 @@ impl Window {
             } else if let Widget::WidgetRow(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                i.update(self.selected, *mouse_position);
+                i.update(self.selected, *mouse_position, mouse_released);
                 i.frame_pushed.clear();
 
                 last_y += i.rect.h + padding;
@@ -341,7 +343,7 @@ impl Window {
             } else if let Widget::Checkbox(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
-                i.update(self.selected, *mouse_position);
+                i.update(self.selected, *mouse_position, mouse_released);
 
                 last_y += i.rect.h + padding + 4.0;
                 if i.rect.w + 4.0 > max_width {
@@ -466,7 +468,7 @@ impl Window {
         let dim = measure_text(&self.name.to_string(), None, 16, 1f32);
         let dim_some = measure_text(&self.name.to_string(), self.style.font.as_ref(), 16, 1f32);
 
-        let height_diff = dim.height/dim_some.height;
+        let height_diff = dim.height / dim_some.height;
 
         // TOP BAR
         draw_rectangle(
@@ -607,7 +609,7 @@ impl Window {
                 match (self.scale_hover, self.scaling.is_some()) {
                     (true, true) => {
                         Color::from_vec(self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.3))
-                    },
+                    }
                     (true, _) => {
                         Color::from_vec(self.style.scale_color.to_vec() + vec4(0.1, 0.1, 0.1, 0.4))
                     }
@@ -774,7 +776,7 @@ impl Window {
 
         idx
     }
-    
+
     /// Set the window's buttons' styles.
     pub fn button_style(&mut self, style: ButtonStyle) -> &mut Self {
         for i in self.widgets.iter_mut() {
@@ -786,7 +788,7 @@ impl Window {
         }
         self
     }
-    
+
     /// Set the window's slider' styles.
     pub fn slider_style(&mut self, style: SliderStyle) -> &mut Self {
         for i in self.widgets.iter_mut() {
@@ -829,5 +831,81 @@ impl Window {
             }
         }
         return None;
+    }
+}
+
+// WIDGETS
+impl Window {
+    /// Push a `Text` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Text(&mut self, text: &str, color: Option<Color>) -> (usize, Text) {
+        let mut x = Widget::Text(Text::new(text, self.style.font.clone(), color, None));
+
+        self.push(&mut x.clone());
+        (self.widgets.len() - 1, x.as_text().clone())
+    }
+
+    /// Push a `Button` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Button(&mut self, text: &str) -> (usize, Button) {
+        let mut x = Widget::Button(Button::new(text, self.style.font.clone(), None, None));
+
+        self.push(&mut x.clone());
+        (self.widgets.len() - 1, x.as_button().clone())
+    }
+
+    /// Push a `Slider` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Slider(
+        &mut self,
+        win: &mut Window,
+        min: f32,
+        max: f32,
+        default: Option<f32>,
+        size: Vec2,
+    ) -> (usize, Slider) {
+        let mut x = Widget::Slider(Slider::new(
+            self.style.font.clone(),
+            min,
+            max,
+            default,
+            size,
+            None,
+        ));
+
+        let idx = self.push(&mut x.clone());
+        (self.widgets.len() - 1, self.get(idx).as_slider().clone())
+    }
+
+    /// Push a `DisplayImage` widget to the window. Returns the index and a CLONE of the object.
+    pub fn DisplayImage(
+        &mut self,
+        win: &mut Window,
+        texture: Option<Texture2D>,
+        size: Vec2,
+    ) -> (usize, DisplayImage) {
+        let mut x = Widget::DisplayImage(DisplayImage::new(texture, size, None, None));
+
+        self.push(&mut x.clone());
+        (self.widgets.len() - 1, x.as_image().clone())
+    }
+
+    /// Push a `WidgetRow` widget to the window. Returns the index and a CLONE of the object.
+    pub fn WidgetRow(&mut self) -> (usize, Option<&mut WidgetRow>) {
+        let mut x = Widget::WidgetRow(WidgetRow::new(self.style.font.clone(), None));
+
+        let idx = self.push(&mut x.clone());
+        (self.widgets.len() - 1, Some(self.get(idx).as_widget_row()))
+    }
+
+    /// Push a `Checkbox` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Checkbox(&mut self, text: &str, ticked: bool) -> (usize, Checkbox) {
+        let mut x = Widget::Checkbox(Checkbox::new(
+            text,
+            self.style.font.clone(),
+            Some(ticked),
+            None,
+            None,
+        ));
+
+        self.push(&mut x.clone());
+        (self.widgets.len() - 1, x.as_checkbox().clone())
     }
 }

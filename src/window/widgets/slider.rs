@@ -4,7 +4,7 @@ use camera::mouse;
 use macroquad::prelude::*;
 
 /// Style > Custom Slider Styling.
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct SliderStyle {
     pub color: Color,
     pub hover_bg_color: Color,
@@ -30,7 +30,14 @@ pub struct Slider {
 
 impl Slider {
     /// Create a new slider.
-    pub fn new(font: Option<Font>, min: f32, max: f32, default: Option<f32>, size: Vec2, uuid: Option<&'static str>) -> Self {
+    pub fn new(
+        font: Option<Font>,
+        min: f32,
+        max: f32,
+        default: Option<f32>,
+        size: Vec2,
+        uuid: Option<&'static str>,
+    ) -> Self {
         Self {
             font: font.clone(),
             uuid: uuid.unwrap_or(""),
@@ -56,8 +63,8 @@ impl Slider {
         self
     }
 
-    pub fn update(&mut self, selected: bool, mouse_position: &Vec2) {
-        if is_mouse_button_released(MouseButton::Left) {
+    pub fn update(&mut self, selected: bool, mouse_position: &Vec2, mouse_released: bool) {
+        if mouse_released {
             self.pressed = false;
         }
 
@@ -99,8 +106,12 @@ impl Slider {
             self.rect.w * self.value / self.max,
             self.rect.h,
             match self.pressed {
-                false => Color::from_vec(self.style.value_color.to_vec() - vec4(0., 0.13, 0., 0.82)),
-                true => Color::from_vec(self.style.value_color.to_vec() - vec4(0.13, 0.3, 0.13, 0.82)),
+                false => {
+                    Color::from_vec(self.style.value_color.to_vec() - vec4(0., 0.13, 0., 0.82))
+                }
+                true => {
+                    Color::from_vec(self.style.value_color.to_vec() - vec4(0.13, 0.3, 0.13, 0.82))
+                }
             },
         );
 
@@ -120,7 +131,9 @@ impl Slider {
                 false => {
                     Color::from_vec(self.style.value_color.to_vec() - vec4(0.1, 0.1, 0.1, 0.22))
                 }
-                true => Color::from_vec(self.style.value_color.to_vec() - vec4(0.1, 0.1, 0.1, 0.42)),
+                true => {
+                    Color::from_vec(self.style.value_color.to_vec() - vec4(0.1, 0.1, 0.1, 0.42))
+                }
             },
         );
 
@@ -131,7 +144,7 @@ impl Slider {
         let dim = measure_text(&text.to_string(), None, 16, 1f32);
         let dim_some = measure_text(&text.to_string(), self.font.as_ref(), 16, 1f32);
 
-        let height_diff = dim.height/dim_some.height;
+        let height_diff = dim.height / dim_some.height;
 
         draw_text_ex(
             &text,
@@ -143,7 +156,7 @@ impl Slider {
                 color: self.style.color,
                 font_scale: height_diff,
                 ..Default::default()
-            }
+            },
         );
     }
 

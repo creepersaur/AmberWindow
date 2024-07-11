@@ -34,7 +34,7 @@ impl Text {
 
     pub fn update(&mut self, _selected: bool) {
         let dim = measure_text(&self.text, None, 16, 1f32);
-        self.rect.w = dim.width * 1.2 + 2.0;
+        self.rect.w = dim.width + 3.0;
         self.rect.h = dim.height + 3.0;
     }
 
@@ -43,7 +43,7 @@ impl Text {
         let dim_some = measure_text(&self.text.to_string(), self.font.as_ref(), 16, 1f32);
 
         let height_diff = dim.height/dim_some.height;
-        self.rect.w = dim.width * 1.2 + 2.0;
+        self.rect.w = dim.width + 3.0;
         self.rect.h = dim.height + 3.0;
         
         draw_text_ex(

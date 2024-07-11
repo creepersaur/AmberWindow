@@ -1,5 +1,4 @@
 use macroquad::prelude::*;
-use std::sync::{Arc, Mutex};
 
 /// Style > Custom Button styling.
 #[derive(Clone, Debug)]
@@ -12,9 +11,9 @@ pub struct ButtonStyle {
 }
 
 /// Widget > Button (Simple text button).
-/// 
+///
 /// # Examples
-/// 
+///
 /// ## Render a button
 /// ```
 /// loop {
@@ -23,7 +22,7 @@ pub struct ButtonStyle {
 ///     }
 /// }
 /// ```
-/// 
+///
 /// ## Detecting button presses
 ///  ```
 /// loop {
@@ -34,7 +33,7 @@ pub struct ButtonStyle {
 ///     }
 /// }
 /// ```
-/// 
+///
 /// ## Check if button is held
 ///  ```
 /// loop {
@@ -59,7 +58,12 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(text: &str, font: Option<Font>, color: Option<Color>, uuid: Option<&'static str>) -> Self {
+    pub fn new(
+        text: &str,
+        font: Option<Font>,
+        color: Option<Color>,
+        uuid: Option<&'static str>,
+    ) -> Self {
         let mut x = Self {
             text: text.to_string(),
             uuid: uuid.unwrap_or(""),
@@ -78,12 +82,12 @@ impl Button {
             button_rect: Rect::new(0., 0., 50., 50.),
             pressed: false,
             is_just_pressed: false,
-            queue_free: false
+            queue_free: false,
         };
-        
+
         x.button_rect.w = x.rect.w + 14.;
         x.button_rect.h = x.rect.h + 7.;
-        
+
         x
     }
 
@@ -91,8 +95,8 @@ impl Button {
         self.uuid = uuid;
         self
     }
-    
-    pub fn update(&mut self, selected: bool, mouse_position: Vec2) {
+
+    pub fn update(&mut self, selected: bool, mouse_position: Vec2, mouse_released: bool) {
         let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 2.0;
         self.rect.h = dim.height + 4.0;
@@ -104,11 +108,7 @@ impl Button {
         self.button_rect.w = self.rect.w + 14.;
         self.button_rect.h = self.rect.h + 7.;
 
-        if is_mouse_button_released(MouseButton::Left)
-            && self.hovering
-            && self.pressed
-            && selected
-        {
+        if mouse_released && self.hovering && self.pressed && selected {
             self.is_just_pressed = true;
         }
 
@@ -130,7 +130,7 @@ impl Button {
         let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
         let dim_some = measure_text(&self.text.to_string(), self.style.font.as_ref(), 16, 1f32);
 
-        let height_diff = dim.height/dim_some.height;
+        let height_diff = dim.height / dim_some.height;
 
         draw_rectangle(
             self.button_rect.x,
@@ -145,15 +145,15 @@ impl Button {
         );
         draw_text_ex(
             self.text.as_str(),
-            f32::floor(self.button_rect.x + self.button_rect.w/2.0 - dim.width/2.0),
-            f32::floor(self.button_rect.y + self.button_rect.h/2.0 + 4.0),
+            f32::floor(self.button_rect.x + self.button_rect.w / 2.0 - dim.width / 2.0),
+            f32::floor(self.button_rect.y + self.button_rect.h / 2.0 + 4.0),
             TextParams {
                 font: self.style.font.as_ref(),
                 font_size: 16,
                 color: self.style.color,
                 font_scale: height_diff,
                 ..Default::default()
-            }
+            },
         );
     }
 

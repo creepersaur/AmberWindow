@@ -56,7 +56,7 @@ impl Checkbox {
         self
     }
 
-    pub fn update(&mut self, selected: bool, mouse_position: Vec2) {
+    pub fn update(&mut self, selected: bool, mouse_position: Vec2, mouse_released: bool) {
         let dim = measure_text(&self.text, None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 7.0 + self.box_rect.w;
         self.rect.h = self.box_rect.h + 3.0;
@@ -64,8 +64,7 @@ impl Checkbox {
 
         self.is_just_pressed = false;
 
-        if is_mouse_button_released(MouseButton::Left) && self.hovering && self.pressed && selected
-        {
+        if mouse_released && self.hovering && self.pressed && selected {
             self.value = !self.value;
             self.is_just_pressed = true;
         }
@@ -88,7 +87,7 @@ impl Checkbox {
         let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
         let dim_some = measure_text(&self.text.to_string(), self.font.as_ref(), 16, 1f32);
 
-        let height_diff = dim.height/dim_some.height;
+        let height_diff = dim.height / dim_some.height;
         self.rect.w = dim.width * 1.2 + 7.0 + self.box_rect.w;
         self.rect.h = self.box_rect.h + 3.0;
 
@@ -122,7 +121,7 @@ impl Checkbox {
                 color: self.color,
                 font_scale: height_diff,
                 ..Default::default()
-            }
+            },
         );
     }
 }
