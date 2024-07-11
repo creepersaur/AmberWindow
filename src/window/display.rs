@@ -840,16 +840,16 @@ impl Window {
     pub fn Text(&mut self, text: &str, color: Option<Color>) -> (usize, Text) {
         let mut x = Widget::Text(Text::new(text, self.style.font.clone(), color, None));
 
-        self.push(&mut x.clone());
-        (self.widgets.len() - 1, x.as_text().clone())
+        let idx = self.push(&mut x.clone());
+        (self.widgets.len() - 1, self.get(idx).as_text().clone())
     }
 
     /// Push a `Button` widget to the window. Returns the index and a CLONE of the object.
     pub fn Button(&mut self, text: &str) -> (usize, Button) {
         let mut x = Widget::Button(Button::new(text, self.style.font.clone(), None, None));
 
-        self.push(&mut x.clone());
-        (self.widgets.len() - 1, x.as_button().clone())
+        let idx = self.push(&mut x.clone());
+        (self.widgets.len() - 1, self.get(idx).as_button().clone())
     }
 
     /// Push a `Slider` widget to the window. Returns the index and a CLONE of the object.
@@ -883,8 +883,8 @@ impl Window {
     ) -> (usize, DisplayImage) {
         let mut x = Widget::DisplayImage(DisplayImage::new(texture, size, None, None));
 
-        self.push(&mut x.clone());
-        (self.widgets.len() - 1, x.as_image().clone())
+        let idx = self.push(&mut x.clone());
+        (self.widgets.len() - 1, self.get(idx).as_image().clone())
     }
 
     /// Push a `WidgetRow` widget to the window. Returns the index and a CLONE of the object.
@@ -905,7 +905,7 @@ impl Window {
             None,
         ));
 
-        self.push(&mut x.clone());
-        (self.widgets.len() - 1, x.as_checkbox().clone())
+        let idx = self.push(&mut x.clone());
+        (self.widgets.len() - 1, self.get(idx).as_checkbox().clone())
     }
 }
