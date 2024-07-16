@@ -108,10 +108,67 @@ impl WindowManager {
         false
     }
 
+    /// Updates (ONLY) all windows.
+    /// *(After calling begin and changing them)*
+    pub fn update_windows(&mut self) {
+        let mouse_position = vec2(mouse_position().0, mouse_position().1);
+
+        let mut win_idx: usize = 0;
+        let mut selected: Option<usize> = None;
+
+        let mut windows = &mut self.windows;
+
+        windows.retain(|x| self.frame_pushed.contains(&x.id));
+
+        for win in windows.iter_mut() {
+            if self.freed.contains(&win.uuid) { continue }
+
+            let mut idx = 0;
+            win.widgets.retain(|_| {
+                if idx > win.frame_pushed.len()-1 {
+                    return false;
+                }
+                idx += 1;
+                true
+            });
+            win.update(selected, &mouse_position);
+
+            if win.selected {
+                selected = Some(win_idx);
+            }
+
+            win_idx += 1;
+        }
+
+        if let Some(idx) = selected {
+            if windows.len() > 0 {
+                let clone = windows[idx].clone();
+                windows.remove(idx);
+                windows.insert(0, clone);
+            }
+        }
+
+        self.frame_pushed.clear();
+    }
+
+    /// Renders (ONLY) all windows.
+    /// *(After calling `update_windows()``)*
+    pub fn render_windows(&mut self) {
+        let mut reversed = self.windows.clone();
+        reversed.reverse();
+        for win in reversed.iter_mut() {
+            if self.freed.contains(&win.uuid) { continue }
+
+            win.render();
+        }
+
+        self.frame_pushed.clear();
+    }
+
     /// Updates and renders all windows.
     /// ## MUST BE CALLED AT THE END
     /// *(After calling begin and changing them)*
-    pub fn update_windows(&mut self) {
+    pub fn end_windows(&mut self) {
         let mouse_position = vec2(mouse_position().0, mouse_position().1);
 
         let mut win_idx: usize = 0;

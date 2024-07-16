@@ -37,7 +37,7 @@ async fn main() {
                 row.Slider(0., 5., 0.5, vec2(row.remaining, 16.));
             }
         }
-        windows.update_windows();
+        windows.end_windows();
         next_frame().await;
     }
 }
