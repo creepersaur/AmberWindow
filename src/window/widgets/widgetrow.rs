@@ -14,17 +14,21 @@ pub struct WidgetRow {
     pub uuid: &'static str,
     pub frame_pushed: Vec<Widget>,
     pub font: Option<Font>,
+    pub remaining: f32,
+    pub window_width: f32,
 }
 
 // BASE IMPL
 impl WidgetRow {
-    pub fn new(font: Option<Font>, uuid: Option<&'static str>) -> Self {
+    pub fn new(font: Option<Font>, uuid: Option<&'static str>, window_width: f32) -> Self {
         Self {
             font,
             frame_pushed: vec![],
             widgets: vec![],
             rect: Rect::new(0., 0., 0., 0.),
             uuid: uuid.unwrap_or(""),
+            remaining: 0f32,
+            window_width
         }
     }
 
@@ -89,14 +93,17 @@ impl WidgetRow {
         }
         self.frame_pushed.push(widget.clone());
 
+        self.update(true, vec2(-100.,-100.), false);
+        self.remaining = self.window_width - self.rect.w - 5.;
+
         idx
     }
 
     pub fn update(&mut self, selected: bool, mouse_position: Vec2, mouse_released: bool) {
-        let mut max_height = 0.0;
+        let mut max_height = 5.0;
 
         let mut last_y = 0.0;
-        let padding = 7.0;
+        let padding = 5.0;
         let padding_left = 0.0;
 
         let mut button_amount = 0.0;
@@ -125,20 +132,17 @@ impl WidgetRow {
 
                 last_y += i.button_rect.w + 2.0 + padding;
             } else if let Widget::Slider(i) = i {
-                i.rect.x = self.rect.x + padding_left;
-                i.rect.y = self.rect.y + last_y - 10.0;
+                i.rect.x = self.rect.x + last_y + padding_left;
+                i.rect.y = self.rect.y - i.rect.h / 2.8;
                 i.update(selected, &mouse_position, mouse_released);
 
-                last_y += i.rect.h + padding + 1.0;
-                if i.rect.h > max_height {
-                    max_height = i.rect.h;
-                }
+                last_y += i.rect.w;
             } else if let Widget::Checkbox(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y;
                 i.update(selected, mouse_position, mouse_released);
 
-                last_y += i.rect.h + padding + 4.0;
+                last_y += i.rect.w + padding + 4.0;
                 if i.rect.h > max_height {
                     max_height = i.rect.h;
                 }
@@ -147,7 +151,7 @@ impl WidgetRow {
 
         self.rect.h = max_height;
         if last_y > self.rect.w {
-            self.rect.w = last_y - 5.0
+            self.rect.w = last_y + 5.0;
         }
         //self.rect.h = max_height + 4.0;
     }
@@ -162,8 +166,9 @@ impl WidgetRow {
         for i in self.widgets.iter_mut() {
             if let Widget::Text(i) = i {
                 i.rect.x = self.rect.x + padding_left + last_y;
-                i.rect.y = self.rect.y;
+                i.rect.y = self.rect.y + i.rect.h/2.;
                 i.render();
+                i.rect.y -= i.rect.h/2.;
 
                 if i.rect.h > max_height {
                     max_height = i.rect.h;
@@ -183,20 +188,21 @@ impl WidgetRow {
 
                 last_y += i.button_rect.w + padding;
             } else if let Widget::Slider(i) = i {
-                i.rect.x = self.rect.x + padding_left;
-                i.rect.y = self.rect.y + last_y - 10.0;
+                i.rect.x = self.rect.x + last_y + padding_left;
+                i.rect.y = self.rect.y - i.rect.h / 2.8;
+                i.rect.w += 3.0;
                 i.render();
+                i.rect.w -= 3.0;
 
-                last_y += i.rect.h + padding;
+                last_y += i.rect.w + padding;
             } else if let Widget::Checkbox(i) = i {
                 i.rect.x = self.rect.x + padding_left;
                 i.rect.y = self.rect.y + last_y - 10.0;
                 i.render();
 
-                last_y += i.rect.h + padding;
+                last_y += i.rect.w + padding;
             }
         }
-
         self.rect.h = max_height + 4.0;
     }
 
@@ -240,17 +246,16 @@ impl WidgetRow {
     /// Push a `Slider` widget to a window. Returns the index and a CLONE of the object.
     pub fn Slider(
         &mut self,
-        win: &mut Window,
         min: f32,
         max: f32,
-        default: Option<f32>,
+        default: f32,
         size: Vec2,
     ) -> (usize, Slider) {
         let mut x = Widget::Slider(Slider::new(
             self.font.clone(),
             min,
             max,
-            default,
+            Some(default),
             size,
             None,
         ));

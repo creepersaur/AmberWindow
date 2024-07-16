@@ -10,6 +10,18 @@ pub struct ButtonStyle {
     pub pressed_bg_color: Color,
 }
 
+impl Default for ButtonStyle {
+    fn default() -> ButtonStyle {
+        ButtonStyle{
+            font: None,
+            color: WHITE,
+            bg_color: Color::new(0.3, 0.3, 0.3, 0.3),
+            hover_bg_color: Color::new(0.2, 0.2, 0.2, 0.3),
+            pressed_bg_color: Color::new(0.4, 0.4, 0.4, 0.4),
+        }.clone()
+    }
+}
+
 /// Widget > Button (Simple text button).
 ///
 /// # Examples
@@ -69,14 +81,12 @@ impl Button {
             uuid: uuid.unwrap_or(""),
             rect: {
                 let dim = measure_text(text, None, 16, 1.0);
-                Rect::new(0.0, 0.0, dim.width * 1.2 + 2.0, dim.height + 4.0)
+                Rect::new(0.0, 0.0, dim.width * 1.2 + 2.0, 14.0) // dim.height + 4.0
             },
             style: ButtonStyle {
                 font: font.clone(),
                 color: color.unwrap_or(WHITE),
-                bg_color: Color::new(0.3, 0.3, 0.3, 0.3),
-                hover_bg_color: Color::new(0.2, 0.2, 0.2, 0.3),
-                pressed_bg_color: Color::new(0.4, 0.4, 0.4, 0.4),
+                ..Default::default()
             },
             hovering: false,
             button_rect: Rect::new(0., 0., 50., 50.),
@@ -99,13 +109,13 @@ impl Button {
     pub fn update(&mut self, selected: bool, mouse_position: Vec2, mouse_released: bool) {
         let dim = measure_text(&self.text.to_string(), None, 16, 1f32);
         self.rect.w = dim.width * 1.2 + 2.0;
-        self.rect.h = dim.height + 4.0;
+        self.rect.h = 14.0;
 
         self.is_just_pressed = false;
 
         self.button_rect.x = self.rect.x - 2.;
         self.button_rect.y = self.rect.y - 12.;
-        self.button_rect.w = self.rect.w + 14.;
+        self.button_rect.w = self.rect.w + 7.;
         self.button_rect.h = self.rect.h + 7.;
 
         if mouse_released && self.hovering && self.pressed && selected {
@@ -145,7 +155,7 @@ impl Button {
         );
         draw_text_ex(
             self.text.as_str(),
-            f32::floor(self.button_rect.x + self.button_rect.w / 2.0 - dim.width / 2.0),
+            f32::floor(self.button_rect.x + self.button_rect.w / 2.0 - dim.width / 2.0 + 2.0),
             f32::floor(self.button_rect.y + self.button_rect.h / 2.0 + 4.0),
             TextParams {
                 font: self.style.font.as_ref(),

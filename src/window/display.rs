@@ -20,6 +20,23 @@ pub struct WindowStyle {
     pub close_color: Color,
 }
 
+impl Default for WindowStyle {
+    fn default() -> Self {
+        WindowStyle{
+            font: None,
+            bg_color: Color::from_hex(0x151617), //Color::new(0.1, 0.1, 0.1, 1.0),
+            tb_color: GOLD,
+            deselected_tb_color: Color::new(1.0, 0.8, 0.0, 0.8),
+            border_color: BLANK,
+            selected_border_color: Color { r: 1.0, g: 0.63, b: 0.0, a: 0.7 },
+            title_color: BLACK,
+            scale_color: Color::new(1.0, 0.7, 0., 0.25),
+            minimize_color: BLACK,
+            close_color: BLACK,
+        }.clone()
+    }
+}
+
 /// # Properties > Properties for windows.
 #[derive(Clone)]
 pub struct WindowProperties {
@@ -80,15 +97,7 @@ impl Window {
             tb_rect: Rect::new(rect.x, rect.y, rect.w, 20.0),
             style: WindowStyle {
                 font: font,
-                bg_color: Color::new(0.1, 0.1, 0.1, 1.0),
-                tb_color: GOLD, //DARKBLUE,
-                deselected_tb_color: Color::new(1.0, 0.8, 0.0, 0.8),
-                border_color: BLANK,
-                selected_border_color: ORANGE,
-                title_color: BLACK,
-                scale_color: Color::new(1.0, 0.7, 0., 0.25),
-                minimize_color: BLACK,
-                close_color: BLACK,
+                ..Default::default()
             },
             properties: WindowProperties {
                 wall_collision: true,
@@ -299,7 +308,7 @@ impl Window {
                 i.rect.y = self.rect.y + last_y;
                 i.update(self.selected);
 
-                last_y += i.rect.h + padding;
+                last_y += i.rect.h + padding + 1.0;
                 if i.rect.w > max_width {
                     max_width = i.rect.w;
                 }
@@ -336,7 +345,7 @@ impl Window {
                 i.update(self.selected, *mouse_position, mouse_released);
                 i.frame_pushed.clear();
 
-                last_y += i.rect.h + padding;
+                last_y += i.rect.h + padding - 2.0;
                 if i.rect.w > max_width {
                     max_width = i.rect.w;
                 }
@@ -352,11 +361,11 @@ impl Window {
             }
         }
 
-        if last_y - 10.0 > self.rect.h {
-            self.rect.h = last_y - 10.0;
+        if last_y - 5.0 > self.rect.h {
+            self.rect.h = last_y - 5.0;
         }
-        if max_width + 10.0 > self.rect.w {
-            self.rect.w = max_width + 10.0
+        if max_width + 4.0 > self.rect.w {
+            self.rect.w = max_width + 4.0
         }
     }
 
@@ -579,19 +588,19 @@ impl Window {
         // CLOSE 'X'
         let x_thickness = 2f32;
         draw_line(
-            self.close_rect.x + 4.,
-            self.close_rect.y + 4.,
-            self.close_rect.x + self.close_rect.w - 4.,
-            self.close_rect.y + self.close_rect.h - 4.,
+            self.close_rect.x + 3.,
+            self.close_rect.y + 3.,
+            self.close_rect.x + self.close_rect.w - 3.,
+            self.close_rect.y + self.close_rect.h - 3.,
             x_thickness,
             self.style.close_color,
         );
 
         draw_line(
-            self.close_rect.x + self.close_rect.w - 4.,
-            self.close_rect.y + 4.,
-            self.close_rect.x + 4.,
-            self.close_rect.y + self.close_rect.h - 4.,
+            self.close_rect.x + self.close_rect.w - 3.,
+            self.close_rect.y + 3.,
+            self.close_rect.x + 3.,
+            self.close_rect.y + self.close_rect.h - 3.,
             x_thickness,
             self.style.close_color,
         )
@@ -837,30 +846,31 @@ impl Window {
 // WIDGETS
 impl Window {
     /// Push a `Text` widget to the window. Returns the index and a CLONE of the object.
-    pub fn Text(&mut self, text: &str, color: Option<Color>) -> (usize, Text) {
+    pub fn Text(&mut self, text: &str, color: Option<Color>) -> &mut Text {
         let mut x = Widget::Text(Text::new(text, self.style.font.clone(), color, None));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, self.get(idx).as_text().clone())
+        // (self.widgets.len() - 1, self.get(idx).as_text().clone())
+        self.get(idx).as_text()
     }
 
     /// Push a `Button` widget to the window. Returns the index and a CLONE of the object.
-    pub fn Button(&mut self, text: &str) -> (usize, Button) {
+    pub fn Button(&mut self, text: &str) -> &mut Button {
         let mut x = Widget::Button(Button::new(text, self.style.font.clone(), None, None));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, self.get(idx).as_button().clone())
+        // (self.widgets.len() - 1, self.get(idx).as_button().clone())
+        self.get(idx).as_button()
     }
 
     /// Push a `Slider` widget to the window. Returns the index and a CLONE of the object.
     pub fn Slider(
         &mut self,
-        win: &mut Window,
         min: f32,
         max: f32,
         default: Option<f32>,
         size: Vec2,
-    ) -> (usize, Slider) {
+    ) -> &mut Slider {
         let mut x = Widget::Slider(Slider::new(
             self.style.font.clone(),
             min,
@@ -871,7 +881,8 @@ impl Window {
         ));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, self.get(idx).as_slider().clone())
+        // (self.widgets.len() - 1, self.get(idx).as_slider().clone())
+        self.get(idx).as_slider()
     }
 
     /// Push a `DisplayImage` widget to the window. Returns the index and a CLONE of the object.
@@ -880,23 +891,25 @@ impl Window {
         win: &mut Window,
         texture: Option<Texture2D>,
         size: Vec2,
-    ) -> (usize, DisplayImage) {
+    ) -> &mut DisplayImage {
         let mut x = Widget::DisplayImage(DisplayImage::new(texture, size, None, None));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, self.get(idx).as_image().clone())
+        // (self.widgets.len() - 1, self.get(idx).as_image().clone())
+        self.get(idx).as_image()
     }
 
     /// Push a `WidgetRow` widget to the window. Returns the index and a CLONE of the object.
-    pub fn WidgetRow(&mut self) -> (usize, Option<&mut WidgetRow>) {
-        let mut x = Widget::WidgetRow(WidgetRow::new(self.style.font.clone(), None));
+    pub fn WidgetRow(&mut self) -> Option<&mut WidgetRow> {
+        let mut x = Widget::WidgetRow(WidgetRow::new(self.style.font.clone(), None, self.rect.w));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, Some(self.get(idx).as_widget_row()))
+        // (self.widgets.len() - 1, Some(self.get(idx).as_widget_row()))
+        Some(self.get(idx).as_widget_row())
     }
 
     /// Push a `Checkbox` widget to the window. Returns the index and a CLONE of the object.
-    pub fn Checkbox(&mut self, text: &str, ticked: bool) -> (usize, Checkbox) {
+    pub fn Checkbox(&mut self, text: &str, ticked: bool) -> &mut Checkbox {
         let mut x = Widget::Checkbox(Checkbox::new(
             text,
             self.style.font.clone(),
@@ -906,6 +919,7 @@ impl Window {
         ));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, self.get(idx).as_checkbox().clone())
+        // (self.widgets.len() - 1, self.get(idx).as_checkbox().clone())
+        self.get(idx).as_checkbox()
     }
 }

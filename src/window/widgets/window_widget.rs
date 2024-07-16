@@ -68,7 +68,7 @@ impl WindowWidget {
 
     /// Push a `WidgetRow` widget to a window. Returns the index and a CLONE of the object.
     pub fn WidgetRow(&self, win: &mut Window) -> (usize, Option<WidgetRow>) {
-        let mut x = Widget::WidgetRow(WidgetRow::new(self.font.clone(), None));
+        let mut x = Widget::WidgetRow(WidgetRow::new(self.font.clone(), None, win.rect.w));
 
         win.push(&mut x.clone());
         (win.widgets.len() - 1, Some(x.as_widget_row().clone()))
