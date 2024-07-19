@@ -26,6 +26,7 @@ pub struct Slider {
     pub queue_free: bool,
     pub value: f32,
     pub percentage: f32,
+    integer_only: bool
 }
 
 impl Slider {
@@ -36,9 +37,11 @@ impl Slider {
         max: f32,
         default: Option<f32>,
         size: Vec2,
+        integer_only: bool,
         uuid: Option<&'static str>,
     ) -> Self {
         Self {
+            integer_only,
             font: font.clone(),
             uuid: uuid.unwrap_or(""),
             rect: Rect::new(0., 0., size.x, size.y),
@@ -81,6 +84,9 @@ impl Slider {
             let slider_button_width = self.rect.w / 10.0;
             let percentage = (((*mouse_position).x - self.rect.x) / self.rect.w);
             self.value = clamp(percentage * (self.max - self.min), self.min, self.max);
+            if self.integer_only {
+                self.value = self.value
+            }
         }
 
         self.percentage = self.value / self.max;
@@ -103,7 +109,7 @@ impl Slider {
         draw_rectangle(
             self.rect.x,
             self.rect.y,
-            self.rect.w * self.value / self.max,
+            f32::clamp(self.rect.w * self.value / self.max, 0., self.rect.w),
             self.rect.h,
             match self.pressed {
                 false => {
@@ -138,8 +144,12 @@ impl Slider {
         );
 
         // Text
-        let text = self.value.to_string();
-        let text = format!("{:.4}", text);
+        let mut text = self.value.to_string();
+        if self.integer_only {
+            text = (self.value as i32).to_string();
+        }
+        text = format!("{:.4}", text);
+
         let font_size = 16;
         let dim = measure_text(&text.to_string(), None, 16, 1f32);
         let dim_some = measure_text(&text.to_string(), self.font.as_ref(), 16, 1f32);

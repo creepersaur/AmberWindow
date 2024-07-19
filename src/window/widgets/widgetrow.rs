@@ -243,25 +243,51 @@ impl WidgetRow {
         (self.widgets.len() - 1, x.as_button().clone())
     }
 
-    /// Push a `Slider` widget to a window. Returns the index and a CLONE of the object.
-    pub fn Slider(
-        &mut self,
-        min: f32,
-        max: f32,
-        default: f32,
-        size: Vec2,
-    ) -> (usize, Slider) {
+    
+    /// Push a `Slider_float` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Slider_float(&mut self, min: f32, max: f32, default: Option<f32>, size: Vec2) -> (f32, f32) {
+        //&mut Slider {
         let mut x = Widget::Slider(Slider::new(
             self.font.clone(),
             min,
             max,
-            Some(default),
+            default,
             size,
+            false,
             None,
         ));
 
         let idx = self.push(&mut x.clone());
-        (self.widgets.len() - 1, self.get(idx).as_slider().clone())
+        let slider = self.get(idx).as_slider();
+        (
+            slider.value,
+            slider.percentage
+        )
+    }
+
+    /// Push a `Slider_int` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Slider_int(&mut self, min: i32, max: i32, default: Option<i32>, size: Vec2) -> (i32, f32) {
+        let mut default_value: Option<f32> = None;
+        if default_value.is_some() {
+            default_value = Some(default_value.unwrap_or(0.0) as f32);
+        }
+        
+        let mut x = Widget::Slider(Slider::new(
+            self.font.clone(),
+            min as f32,
+            max as f32,
+            default_value,
+            size,
+            true,
+            None,
+        ));
+
+        let idx = self.push(&mut x.clone());
+        let slider = self.get(idx).as_slider();
+        (
+            slider.value.round() as i32,
+            slider.percentage
+        )
     }
 
     /// Push a `DisplayImage` widget to a window. Returns the index and a CLONE of the object.

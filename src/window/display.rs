@@ -1,7 +1,5 @@
 #![allow(unused)]
 
-use std::{any::Any, vec};
-
 use super::widgets::*;
 use macroquad::{prelude::*, ui};
 
@@ -22,18 +20,24 @@ pub struct WindowStyle {
 
 impl Default for WindowStyle {
     fn default() -> Self {
-        WindowStyle{
+        WindowStyle {
             font: None,
             bg_color: Color::from_hex(0x151617), //Color::new(0.1, 0.1, 0.1, 1.0),
             tb_color: GOLD,
             deselected_tb_color: Color::new(1.0, 0.8, 0.0, 0.8),
             border_color: BLANK,
-            selected_border_color: Color { r: 1.0, g: 0.63, b: 0.0, a: 0.7 },
+            selected_border_color: Color {
+                r: 1.0,
+                g: 0.63,
+                b: 0.0,
+                a: 0.7,
+            },
             title_color: BLACK,
             scale_color: Color::new(1.0, 0.7, 0., 0.25),
             minimize_color: BLACK,
             close_color: BLACK,
-        }.clone()
+        }
+        .clone()
     }
 }
 
@@ -737,55 +741,6 @@ impl Window {
         self
     }
 
-    /// Push multiple widgets to the window.
-    pub fn push_widgets(&mut self, widgets: &mut Vec<Widget>) -> &mut Self {
-        if widgets.len() < 1 {
-            return self;
-        }
-
-        for i in widgets.iter_mut() {
-            self.push(i);
-        }
-
-        self
-    }
-
-    // Push a single widget to the window.
-    pub fn push(&mut self, widget: &mut Widget) -> usize {
-        let mut idx = self.frame_pushed.len();
-
-        if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
-            self.widgets.push(widget.clone());
-        } else if matches!(widget.clone(), self_Clone) && widget.equate(&mut self.get_widget(idx)) {
-            if let Widget::Text(ref mut widget) = widget {
-                self.get_widget(idx).as_text().text = widget.text.clone();
-            } else if let Widget::Button(ref mut widget) = widget {
-                let obj = self.get_widget(idx).as_button();
-                widget.pressed = obj.pressed;
-                widget.hovering = obj.hovering;
-                widget.is_just_pressed = obj.is_just_pressed;
-            } else if let Widget::Slider(ref mut widget) = widget {
-                let obj = self.get_widget(idx).as_slider();
-                widget.pressed = obj.pressed;
-                widget.hovering = obj.hovering;
-                widget.value = obj.value;
-            } else if let Widget::Checkbox(ref mut widget) = widget {
-                let obj = self.get_widget(idx).as_checkbox();
-                widget.pressed = obj.pressed;
-                widget.hovering = obj.hovering;
-                widget.value = obj.value;
-                widget.is_just_pressed = obj.is_just_pressed;
-            }
-
-            self.widgets[idx] = widget.clone();
-        } else {
-            self.widgets.push(widget.clone());
-        }
-        self.frame_pushed.push(widget.clone());
-
-        idx
-    }
-
     /// Set the window's buttons' styles.
     pub fn button_style(&mut self, style: ButtonStyle) -> &mut Self {
         for i in self.widgets.iter_mut() {
@@ -845,6 +800,62 @@ impl Window {
 
 // WIDGETS
 impl Window {
+    /// Push multiple widgets to the window.
+    pub fn push_widgets(&mut self, widgets: &mut Vec<Widget>) -> &mut Self {
+        if widgets.len() < 1 {
+            return self;
+        }
+
+        for i in widgets.iter_mut() {
+            self.push(i);
+        }
+
+        self
+    }
+
+    fn convert_widget(&mut self, widget: &mut Widget, idx: usize) {
+        if let Widget::Button(ref mut widget) = widget {
+            let obj = self.get_widget(idx).as_button();
+            widget.pressed = obj.pressed;
+            widget.hovering = obj.hovering;
+            widget.is_just_pressed = obj.is_just_pressed;
+        } else if let Widget::Slider(ref mut widget) = widget {
+            let obj = self.get_widget(idx).as_slider();
+            widget.pressed = obj.pressed;
+            widget.hovering = obj.hovering;
+            widget.value = obj.value;
+        } else if let Widget::Checkbox(ref mut widget) = widget {
+            let obj = self.get_widget(idx).as_checkbox();
+            widget.pressed = obj.pressed;
+            widget.hovering = obj.hovering;
+            widget.value = obj.value;
+            widget.is_just_pressed = obj.is_just_pressed;
+        }
+    }
+
+    // Push a single widget to the window.
+    pub fn push(&mut self, widget: &mut Widget) -> usize {
+        let mut idx = self.frame_pushed.len();
+
+        if self.widgets.len() < 1 || self.widgets.len() - 1 < idx {
+            self.widgets.push(widget.clone());
+        } else if matches!(widget.clone(), self_Clone) && widget.equate(&mut self.get_widget(idx)) {
+            self.convert_widget(widget, idx);
+
+            self.widgets[idx] = widget.clone();
+        } else {
+            self.convert_widget(widget, idx);
+            if self.widgets.len() >= idx {
+                self.widgets[idx] = widget.clone();
+            } else {
+                self.widgets.push(widget.clone());
+            }
+        }
+        self.frame_pushed.push(widget.clone());
+
+        idx
+    }
+
     /// Push a `Text` widget to the window. Returns the index and a CLONE of the object.
     pub fn Text(&mut self, text: &str, color: Option<Color>) -> &mut Text {
         let mut x = Widget::Text(Text::new(text, self.style.font.clone(), color, None));
@@ -855,34 +866,59 @@ impl Window {
     }
 
     /// Push a `Button` widget to the window. Returns the index and a CLONE of the object.
-    pub fn Button(&mut self, text: &str) -> &mut Button {
+    pub fn Button(&mut self, text: &str) -> bool {
+        // &mut Button {
         let mut x = Widget::Button(Button::new(text, self.style.font.clone(), None, None));
 
         let idx = self.push(&mut x.clone());
         // (self.widgets.len() - 1, self.get(idx).as_button().clone())
-        self.get(idx).as_button()
+        self.get(idx).as_button().is_just_pressed
     }
 
-    /// Push a `Slider` widget to the window. Returns the index and a CLONE of the object.
-    pub fn Slider(
-        &mut self,
-        min: f32,
-        max: f32,
-        default: Option<f32>,
-        size: Vec2,
-    ) -> &mut Slider {
+    /// Push a `Slider_float` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Slider_float(&mut self, min: f32, max: f32, default: Option<f32>, size: Vec2) -> (f32, f32) {
+        //&mut Slider {
         let mut x = Widget::Slider(Slider::new(
             self.style.font.clone(),
             min,
             max,
             default,
             size,
+            false,
             None,
         ));
 
         let idx = self.push(&mut x.clone());
-        // (self.widgets.len() - 1, self.get(idx).as_slider().clone())
-        self.get(idx).as_slider()
+        let slider = self.get(idx).as_slider();
+        (
+            slider.value,
+            slider.percentage
+        )
+    }
+
+    /// Push a `Slider_int` widget to the window. Returns the index and a CLONE of the object.
+    pub fn Slider_int(&mut self, min: i32, max: i32, default: Option<i32>, size: Vec2) -> (i32, f32) {
+        let mut default_value: Option<f32> = None;
+        if default_value.is_some() {
+            default_value = Some(default_value.unwrap_or(0.0) as f32);
+        }
+        
+        let mut x = Widget::Slider(Slider::new(
+            self.style.font.clone(),
+            min as f32,
+            max as f32,
+            default_value,
+            size,
+            true,
+            None,
+        ));
+
+        let idx = self.push(&mut x.clone());
+        let slider = self.get(idx).as_slider();
+        (
+            slider.value.round() as i32,
+            slider.percentage
+        )
     }
 
     /// Push a `DisplayImage` widget to the window. Returns the index and a CLONE of the object.

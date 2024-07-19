@@ -46,6 +46,7 @@ impl WindowWidget {
             max,
             default,
             size,
+            true,
             None,
         ));
 
